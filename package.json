@@ -1,0 +1,16 @@
+{
+  "name": "micro-jq",
+  "version": "1.0.0",
+  "description": "Small implemenation of jq",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "pegjs -o parser.js parser.pegjs",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "pegjs": "^0.10.0",
+    "prettier": "^1.15.3"
+  }
+}
