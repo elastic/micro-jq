@@ -7,8 +7,10 @@ const input = JSON.parse(fs.readFileSync(0, 'utf8'))
 
 const result = executeScript(input, script)
 
-console.log('In:')
-console.dir(input)
-console.log('Out:')
-result.forEach(r => console.dir(r))
-
+if (Array.isArray(result)) {
+  for (const eachResult of result) {
+    console.log(JSON.stringify(eachResult))
+  }
+} else {
+  console.log(JSON.stringify(result))
+}

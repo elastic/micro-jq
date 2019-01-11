@@ -4,6 +4,7 @@
   "description": "Small implemenation of jq",
   "main": "index.js",
   "license": "MIT",
+  "bin": "./cli.js",
   "scripts": {
     "build": "pegjs -o parser.js parser.pegjs",
     "test": "jest"
