@@ -1,9 +1,9 @@
 {
-  "name": "micro-jq",
+  "name": "@elastic/micro-jq",
   "version": "1.0.0",
-  "description": "Small implemenation of jq",
+  "description": "Small implementation of jq",
   "main": "index.js",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bin": "./cli.js",
   "scripts": {
     "build": "pegjs -o parser.js parser.pegjs",

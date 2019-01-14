@@ -16,7 +16,7 @@ Pipe
   = "|"
 
 Filter
-  = _ identifer: "." name: [a-zA-Z]+ subscript:("[" [0-9]* "]")? strict:"?"? {
+  = _ identifer: "." name: [a-zA-Z_]+ subscript:("[" [0-9]* "]")? strict:"?"? {
     const explode = subscript != null && (subscript[1] == null || subscript[1].length === 0)
     const index = subscript != null && subscript[1] != null && subscript[1].length > 0
       ? parseInt(subscript[1].join(''), 10)
@@ -30,7 +30,7 @@ Filter
       strict: strict == null
     };
   } 
-  / _ ".[" name:[a-zA-Z]+ "]" strict:"?"? { return { op: 'pick', key: name.join(''), strict: strict == null }; } 
+  / _ ".[" name:[a-zA-Z_-]+ "]" strict:"?"? { return { op: 'pick', key: name.join(''), strict: strict == null }; } 
   / _ ".[" index:[0-9]+ "]" { return { op: 'index', index: parseInt(index.join(''), 10) }; } 
   / _ ".[" start:[0-9]+ ":" end:[0-9]+ "]" { return { op: 'slice', start: parseInt(start.join(''), 10), end: parseInt(end.join(''), 10) }; } 
   / _ ".[]" strict:"?"? { return { op: 'explode', strict: strict == null }; }
@@ -73,6 +73,6 @@ KeyValue
   }
   
 Key
-  = key:([a-zA-Z0-9]+) { return key.join('') } 
+  = key:([a-zA-Z0-9_]+) { return key.join('') } 
   / "'" key:[^']+ "'" { return key.join('') } 
   / '"' key:[^"]+ '"' { return key.join('') } 
