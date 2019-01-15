@@ -13,5 +13,5 @@ function checkScript(script) {
 module.exports = {
   checkScript,
   executeScript,
-  parseScript: parser.parse
+  parseScript: parser.parse,
 }

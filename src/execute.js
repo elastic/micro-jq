@@ -24,6 +24,13 @@ function evaluateOpCodes(context, opCodes) {
 
       case 'pick':
         context = context.reduce((result, each) => {
+          if (each != null && typeof each !== 'object') {
+            if (opCode.strict) {
+              throw new Error(`Cannot index ${typeof each} with ${opCode.key}`)
+            }
+            // Skip this value entirely
+            return result
+          }
           let picked = each[opCode.key]
           if (opCode.explode) {
             if (!Array.isArray(picked)) {
@@ -52,8 +59,15 @@ function evaluateOpCodes(context, opCodes) {
 
       case 'explode':
         context = context.reduce((result, each) => {
+          if (each == null) {
+            return result
+          }
+
           if (!Array.isArray(each)) {
-            throw new Error('Cannot iterate over ' + typeof each)
+            if (opCode.strict) {
+              throw new Error('Cannot iterate over ' + typeof each)
+            }
+            return result
           }
           return result.concat(each)
         }, [])

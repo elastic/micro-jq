@@ -41,6 +41,36 @@ describe('pick values', () => {
   })
 })
 
+describe('lazy operator', () => {
+  test('cannot pick a key from a number', () => {
+    const input = 1
+    const script = '.foo'
+    expect(() =>
+      executeScript(input, script)
+    ).toThrowErrorMatchingInlineSnapshot('"Cannot index number with foo"')
+  })
+
+  test('can suppress errors', () => {
+    const input = 1
+    const script = '.foo?'
+    expect(executeScript(input, script)).toEqual(undefined)
+  })
+
+  test('cannot expand a literal as an array', () => {
+    const input = 1
+    const script = '.[]'
+    expect(() =>
+      executeScript(input, script)
+    ).toThrowErrorMatchingInlineSnapshot('"Cannot iterate over number"')
+  })
+
+  test('can suppress iteration errors', () => {
+    const input = 1
+    const script = '.[]?'
+    expect(executeScript(input, script)).toEqual(undefined)
+  })
+})
+
 describe('pipes', () => {
   test('simple pipe', () => {
     const input = { foo: { bar: 'baz' } }
@@ -54,8 +84,13 @@ describe('create array', () => {
     expect(executeScript(null, '[ 1 ]')).toEqual([1])
   })
 
-  test('with mutiple literal', () => {
-    expect(executeScript(null, '[ 1, "2", \'3\', null ]')).toEqual([1,'2','3', null])
+  test('with multiple literal', () => {
+    expect(executeScript(null, "[ 1, \"2\", '3', null ]")).toEqual([
+      1,
+      '2',
+      '3',
+      null,
+    ])
   })
 
   test('with filter', () => {
@@ -69,11 +104,15 @@ describe('create object', () => {
   })
 
   test('with multiple literal', () => {
-    expect(executeScript(null, '{ foo: 42, bar: "baz", quux: { schmee: null } }')).toEqual({ foo: 42, bar: 'baz', quux: { schmee: null }})
+    expect(
+      executeScript(null, '{ foo: 42, bar: "baz", quux: { schmee: null } }')
+    ).toEqual({ foo: 42, bar: 'baz', quux: { schmee: null } })
   })
 
   test('with filters', () => {
-    expect(executeScript({ foo: 'bar' }, '{ bar: .foo }')).toEqual({ bar: 'bar' })
+    expect(executeScript({ foo: 'bar' }, '{ bar: .foo }')).toEqual({
+      bar: 'bar',
+    })
   })
 })
 
@@ -85,10 +124,9 @@ test('nested structures', () => {
       },
       {
         bar: 'quux',
-      }
-    ]
+      },
+    ],
   }
 
   expect(executeScript(input, '.foo[] | .bar')).toEqual(['baz', 'quux'])
 })
-
