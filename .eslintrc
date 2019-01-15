@@ -1,0 +1,36 @@
+---
+
+env:
+  browser: true
+  commonjs: true
+  es6: true
+  node: true
+
+plugins:
+  - jest
+
+extends:
+  - eslint:recommended
+  - plugin:jest/recommended
+
+parserOptions:
+  ecmaVersion: 2016
+
+rules:
+  indent:
+  - error
+  - 2
+  - SwitchCase: 1
+
+  linebreak-style:
+  - error
+  - unix
+
+  quotes:
+  - error
+  - single
+  - avoid-escape
+
+  semi:
+  - error
+  - never

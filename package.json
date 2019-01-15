@@ -7,9 +7,12 @@
   "bin": "./src/cli.js",
   "scripts": {
     "build": "pegjs -o ./src/parser.js ./src/parser.pegjs",
+    "lint": "eslint src",
     "test": "jest"
   },
   "devDependencies": {
+    "eslint": "^5.12.0",
+    "eslint-plugin-jest": "^22.1.3",
     "jest": "^23.6.0",
     "pegjs": "^0.10.0",
     "prettier": "^1.15.3"

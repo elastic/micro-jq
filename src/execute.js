@@ -19,7 +19,7 @@ function evaluateOpCodes(context, opCodes) {
         break
 
       case 'literal':
-        context = [opCode.value];
+        context = [opCode.value]
         break
 
       case 'pick':
@@ -55,7 +55,7 @@ function evaluateOpCodes(context, opCodes) {
         break
 
       case 'create_array':
-        context = [ opCode.values.map(each => evaluateOpCodes(context, each)) ];
+        context = [ opCode.values.map(each => evaluateOpCodes(context, each)) ]
         break
 
       case 'create_object':

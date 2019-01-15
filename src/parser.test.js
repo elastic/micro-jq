@@ -1,17 +1,17 @@
-const parser = require("./parser");
+const parser = require('./parser')
 
-test("current context", () => {
-  expect(parser.parse(".")).toMatchInlineSnapshot(`
+test('current context', () => {
+  expect(parser.parse('.')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "current_context",
   },
 ]
-`);
-});
+`)
+})
 
-test("pick a key", () => {
-  expect(parser.parse(".foo")).toMatchInlineSnapshot(`
+test('pick a key', () => {
+  expect(parser.parse('.foo')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -21,11 +21,11 @@ Array [
     "strict": true,
   },
 ]
-`);
-});
+`)
+})
 
-test("pick a key lazily", () => {
-  expect(parser.parse(".foo?")).toMatchInlineSnapshot(`
+test('pick a key lazily', () => {
+  expect(parser.parse('.foo?')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -35,11 +35,11 @@ Array [
     "strict": false,
   },
 ]
-`);
-});
+`)
+})
 
-test("pick nested keys", () => {
-  expect(parser.parse(".foo.bar")).toMatchInlineSnapshot(`
+test('pick nested keys', () => {
+  expect(parser.parse('.foo.bar')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -56,33 +56,33 @@ Array [
     "strict": true,
   },
 ]
-`);
-});
+`)
+})
 
-test("index an array", () => {
-  expect(parser.parse(".[1]")).toMatchInlineSnapshot(`
+test('index an array', () => {
+  expect(parser.parse('.[1]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "index": 1,
     "op": "index",
   },
 ]
-`);
-});
+`)
+})
 
-test("get all values from an array", () => {
-  expect(parser.parse(".[]")).toMatchInlineSnapshot(`
+test('get all values from an array', () => {
+  expect(parser.parse('.[]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "explode",
     "strict": true,
   },
 ]
-`);
-});
+`)
+})
 
-test("pick a value an index into it", () => {
-  expect(parser.parse(".foo[1]")).toMatchInlineSnapshot(`
+test('pick a value an index into it', () => {
+  expect(parser.parse('.foo[1]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -92,11 +92,11 @@ Array [
     "strict": true,
   },
 ]
-`);
-});
+`)
+})
 
-test("pick value from an array", () => {
-  expect(parser.parse(".foo[].bar")).toMatchInlineSnapshot(`
+test('pick value from an array', () => {
+  expect(parser.parse('.foo[].bar')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": true,
@@ -113,11 +113,11 @@ Array [
     "strict": true,
   },
 ]
-`);
-});
+`)
+})
 
-test("pipe commands together", () => {
-  expect(parser.parse(".foo | .bar")).toMatchInlineSnapshot(`
+test('pipe commands together', () => {
+  expect(parser.parse('.foo | .bar')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -134,12 +134,12 @@ Array [
     "strict": true,
   },
 ]
-`);
-});
+`)
+})
 
-describe(`create arrays`, () => {
-  test("create an array", () => {
-    expect(parser.parse("[ 1 ]")).toMatchInlineSnapshot(`
+describe('create arrays', () => {
+  test('create an array', () => {
+    expect(parser.parse('[ 1 ]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "create_array",
@@ -151,11 +151,11 @@ Array [
     ],
   },
 ]
-`);
-  });
+`)
+  })
 
-  test("create an array with multiple values", () => {
-    expect(parser.parse("[ 1, 2 ]")).toMatchInlineSnapshot(`
+  test('create an array with multiple values', () => {
+    expect(parser.parse('[ 1, 2 ]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "create_array",
@@ -171,11 +171,11 @@ Array [
     ],
   },
 ]
-`);
-  });
+`)
+  })
 
-  test("create an array with filters", () => {
-    expect(parser.parse("[ .foo, .bar ]")).toMatchInlineSnapshot(`
+  test('create an array with filters', () => {
+    expect(parser.parse('[ .foo, .bar ]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "create_array",
@@ -197,13 +197,13 @@ Array [
     ],
   },
 ]
-`);
-  });
-});
+`)
+  })
+})
 
-describe("create objects", () => {
-  test("one key", () => {
-    expect(parser.parse("{ foo: 1 }")).toMatchInlineSnapshot(`
+describe('create objects', () => {
+  test('one key', () => {
+    expect(parser.parse('{ foo: 1 }')).toMatchInlineSnapshot(`
 Array [
   Object {
     "entries": Array [
@@ -220,11 +220,11 @@ Array [
     "op": "create_object",
   },
 ]
-`);
-  });
+`)
+  })
 
-  test("multiple keys", () => {
-    expect(parser.parse(`{ foo: 1, bar: 'baz', quux: "schmee" }`))
+  test('multiple keys', () => {
+    expect(parser.parse('{ foo: 1, bar: \'baz\', quux: "schmee" }'))
       .toMatchInlineSnapshot(`
 Array [
   Object {
@@ -260,11 +260,11 @@ Array [
     "op": "create_object",
   },
 ]
-`);
-  });
+`)
+  })
 
-  test("filters for values", () => {
-    expect(parser.parse("{ foo: .bar, baz: .quux.schmee }"))
+  test('filters for values', () => {
+    expect(parser.parse('{ foo: .bar, baz: .quux.schmee }'))
       .toMatchInlineSnapshot(`
 Array [
   Object {
@@ -304,6 +304,6 @@ Array [
     "op": "create_object",
   },
 ]
-`);
-  });
-});
+`)
+  })
+})
