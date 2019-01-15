@@ -10,7 +10,7 @@ Array [
 `)
 })
 
-test('pick a key', () => {
+test('bare identifier', () => {
   expect(parser.parse('.foo')).toMatchInlineSnapshot(`
 Array [
   Object {
@@ -24,7 +24,21 @@ Array [
 `)
 })
 
-test('pick a key lazily', () => {
+test('bare identifier with punctuation', () => {
+  expect(parser.parse('.$foo')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "explode": false,
+    "index": null,
+    "key": "$foo",
+    "op": "pick",
+    "strict": true,
+  },
+]
+`)
+})
+
+test('optional bare identifier', () => {
   expect(parser.parse('.foo?')).toMatchInlineSnapshot(`
 Array [
   Object {
@@ -38,7 +52,7 @@ Array [
 `)
 })
 
-test('pick nested keys', () => {
+test('nested keys', () => {
   expect(parser.parse('.foo.bar')).toMatchInlineSnapshot(`
 Array [
   Object {
@@ -81,7 +95,7 @@ Array [
 `)
 })
 
-test('pick a value an index into it', () => {
+test('pick a value and index into it', () => {
   expect(parser.parse('.foo[1]')).toMatchInlineSnapshot(`
 Array [
   Object {

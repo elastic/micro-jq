@@ -27,6 +27,18 @@ describe('pick values', () => {
     const script = '.foo.bar'
     expect(executeScript(input, script)).toEqual('baz')
   })
+
+  test('pick index', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[4]'
+    expect(executeScript(input, script)).toEqual(5)
+  })
+
+  test('pick by identifier and then index', () => {
+    const input = { foo: [1, 1, 2, 3, 5, 8, 13] }
+    const script = '.foo[4]'
+    expect(executeScript(input, script)).toEqual(5)
+  })
 })
 
 describe('pipes', () => {
