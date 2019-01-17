@@ -1,7 +1,7 @@
-const parser = require('../src/parser')
+const { parse } = require('../src/parser')
 
 test('current context', () => {
-  expect(parser.parse('.')).toMatchInlineSnapshot(`
+  expect(parse('.')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "current_context",
@@ -11,7 +11,7 @@ Array [
 })
 
 test('bare identifier', () => {
-  expect(parser.parse('.foo')).toMatchInlineSnapshot(`
+  expect(parse('.foo')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -25,7 +25,7 @@ Array [
 })
 
 test('bare identifier with punctuation', () => {
-  expect(parser.parse('.$foo')).toMatchInlineSnapshot(`
+  expect(parse('.$foo')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -39,7 +39,7 @@ Array [
 })
 
 test('optional bare identifier', () => {
-  expect(parser.parse('.foo?')).toMatchInlineSnapshot(`
+  expect(parse('.foo?')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -53,7 +53,7 @@ Array [
 })
 
 test('nested keys', () => {
-  expect(parser.parse('.foo.bar')).toMatchInlineSnapshot(`
+  expect(parse('.foo.bar')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -74,7 +74,7 @@ Array [
 })
 
 test('index an array', () => {
-  expect(parser.parse('.[1]')).toMatchInlineSnapshot(`
+  expect(parse('.[1]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "index": 1,
@@ -85,7 +85,7 @@ Array [
 })
 
 test('get all values from an array', () => {
-  expect(parser.parse('.[]')).toMatchInlineSnapshot(`
+  expect(parse('.[]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "explode",
@@ -96,7 +96,7 @@ Array [
 })
 
 test('pick a value and index into it', () => {
-  expect(parser.parse('.foo[1]')).toMatchInlineSnapshot(`
+  expect(parse('.foo[1]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -110,7 +110,7 @@ Array [
 })
 
 test('pick value from an array', () => {
-  expect(parser.parse('.foo[].bar')).toMatchInlineSnapshot(`
+  expect(parse('.foo[].bar')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": true,
@@ -130,8 +130,29 @@ Array [
 `)
 })
 
+test('pick a value from an array and pick from that', () => {
+  expect(parse('.foo[1].bar')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "explode": false,
+    "index": 1,
+    "key": "foo",
+    "op": "pick",
+    "strict": true,
+  },
+  Object {
+    "explode": false,
+    "index": null,
+    "key": "bar",
+    "op": "pick",
+    "strict": true,
+  },
+]
+`)
+})
+
 test('pipe commands together', () => {
-  expect(parser.parse('.foo | .bar')).toMatchInlineSnapshot(`
+  expect(parse('.foo | .bar')).toMatchInlineSnapshot(`
 Array [
   Object {
     "explode": false,
@@ -153,15 +174,17 @@ Array [
 
 describe('create arrays', () => {
   test('create an array', () => {
-    expect(parser.parse('[ 1 ]')).toMatchInlineSnapshot(`
+    expect(parse('[ 1 ]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "create_array",
     "values": Array [
-      Object {
-        "op": "literal",
-        "value": 1,
-      },
+      Array [
+        Object {
+          "op": "literal",
+          "value": 1,
+        },
+      ],
     ],
   },
 ]
@@ -169,19 +192,23 @@ Array [
   })
 
   test('create an array with multiple values', () => {
-    expect(parser.parse('[ 1, 2 ]')).toMatchInlineSnapshot(`
+    expect(parse('[ 1, 2 ]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "create_array",
     "values": Array [
-      Object {
-        "op": "literal",
-        "value": 1,
-      },
-      Object {
-        "op": "literal",
-        "value": 2,
-      },
+      Array [
+        Object {
+          "op": "literal",
+          "value": 1,
+        },
+      ],
+      Array [
+        Object {
+          "op": "literal",
+          "value": 2,
+        },
+      ],
     ],
   },
 ]
@@ -189,25 +216,73 @@ Array [
   })
 
   test('create an array with filters', () => {
-    expect(parser.parse('[ .foo, .bar ]')).toMatchInlineSnapshot(`
+    expect(parse('[ .foo, .bar ]')).toMatchInlineSnapshot(`
 Array [
   Object {
     "op": "create_array",
     "values": Array [
-      Object {
-        "explode": false,
-        "index": null,
-        "key": "foo",
-        "op": "pick",
-        "strict": true,
-      },
-      Object {
-        "explode": false,
-        "index": null,
-        "key": "bar",
-        "op": "pick",
-        "strict": true,
-      },
+      Array [
+        Object {
+          "explode": false,
+          "index": null,
+          "key": "foo",
+          "op": "pick",
+          "strict": true,
+        },
+      ],
+      Array [
+        Object {
+          "explode": false,
+          "index": null,
+          "key": "bar",
+          "op": "pick",
+          "strict": true,
+        },
+      ],
+    ],
+  },
+]
+`)
+  })
+
+  test('create an array by picking a value from an array and picking from that', () => {
+    expect(parse('[ .foo[1].bar, .foo[1].bar ]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "create_array",
+    "values": Array [
+      Array [
+        Object {
+          "explode": false,
+          "index": 1,
+          "key": "foo",
+          "op": "pick",
+          "strict": true,
+        },
+        Object {
+          "explode": false,
+          "index": null,
+          "key": "bar",
+          "op": "pick",
+          "strict": true,
+        },
+      ],
+      Array [
+        Object {
+          "explode": false,
+          "index": 1,
+          "key": "foo",
+          "op": "pick",
+          "strict": true,
+        },
+        Object {
+          "explode": false,
+          "index": null,
+          "key": "bar",
+          "op": "pick",
+          "strict": true,
+        },
+      ],
     ],
   },
 ]
@@ -217,7 +292,7 @@ Array [
 
 describe('create objects', () => {
   test('one key', () => {
-    expect(parser.parse('{ foo: 1 }')).toMatchInlineSnapshot(`
+    expect(parse('{ foo: 1 }')).toMatchInlineSnapshot(`
 Array [
   Object {
     "entries": Array [
@@ -238,7 +313,7 @@ Array [
   })
 
   test('multiple keys', () => {
-    expect(parser.parse('{ foo: 1, bar: \'baz\', quux: "schmee" }'))
+    expect(parse("{ foo: 1, bar: 'baz', quux: \"schmee\" }"))
       .toMatchInlineSnapshot(`
 Array [
   Object {
@@ -278,8 +353,7 @@ Array [
   })
 
   test('filters for values', () => {
-    expect(parser.parse('{ foo: .bar, baz: .quux.schmee }'))
-      .toMatchInlineSnapshot(`
+    expect(parse('{ foo: .bar, baz: .quux.schmee }')).toMatchInlineSnapshot(`
 Array [
   Object {
     "entries": Array [

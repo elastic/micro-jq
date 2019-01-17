@@ -39,6 +39,12 @@ describe('pick values', () => {
     const script = '.foo[4]'
     expect(executeScript(input, script)).toEqual(5)
   })
+
+  test('pick by identifier, index, then identifier again', () => {
+    const input = { foo: [ { bar: 1 }, { bar: 2 } ] }
+    const script = '.foo[1].bar'
+    expect(executeScript(input, script)).toEqual(2)
+  })
 })
 
 describe('lazy operator', () => {
@@ -95,6 +101,12 @@ describe('create array', () => {
 
   test('with filter', () => {
     expect(executeScript({ foo: 'bar' }, '[ .foo ]')).toEqual(['bar'])
+  })
+
+  test('with complex filter', () => {
+    const input = { foo: [ { bar: 1 }, { bar: 2 } ] }
+    const script = '[ .foo[1].bar ]'
+    expect(executeScript(input, script)).toEqual([2])
   })
 })
 

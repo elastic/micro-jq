@@ -66,7 +66,7 @@ CreateArray
   = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {
   return {
     op: 'create_array',
-    values: tail.reduce((result, element) => result.concat(element[3]), head)
+    values: tail.reduce((result, element) => result.concat([element[3]]), [head])
   }
 }
 

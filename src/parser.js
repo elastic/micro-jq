@@ -208,7 +208,7 @@ function peg$parse(input, options) {
       peg$c48 = function(head, tail) {
         return {
           op: 'create_array',
-          values: tail.reduce((result, element) => result.concat(element[3]), head)
+          values: tail.reduce((result, element) => result.concat([element[3]]), [head])
         }
       },
       peg$c49 = "{",

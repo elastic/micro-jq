@@ -7,7 +7,7 @@
   "bin": "./src/cli.js",
   "scripts": {
     "build": "pegjs -o ./src/parser.js ./src/parser.pegjs",
-    "lint": "eslint src",
+    "lint": "eslint .",
     "test": "jest"
   },
   "devDependencies": {
