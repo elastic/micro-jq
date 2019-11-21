@@ -1,3 +1,7 @@
+## [`1.1.0`](https://github.com/elastic/micro-jq/tree/v1.1.0)
+
+- Update dependencies
+
 ## [`1.0.2`](https://github.com/elastic/micro-jq/tree/v1.0.2)
 
 - Bugfixes
