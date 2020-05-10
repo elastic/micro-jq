@@ -58,6 +58,38 @@ describe('pick values', () => {
     expect(executeScript(input, script)).toEqual(null)
   })
 
+  test('slice', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[2:5]'
+    expect(executeScript(input, script)).toEqual([2, 3, 5])
+  })
+
+  test('slice with no start', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[:5]'
+    expect(executeScript(input, script)).toEqual([1, 1, 2, 3, 5])
+  })
+
+  test('slice with no end', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[2:]'
+    expect(executeScript(input, script)).toEqual([2, 3, 5, 8, 13])
+  })
+
+  test('slice with no offsets', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[:]'
+    expect(() =>
+      executeScript(input, script)
+    ).toThrowErrorMatchingInlineSnapshot('"Cannot slice with no offsets"')
+  })
+
+  test('slice with negative offsets', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[-5:-2]'
+    expect(executeScript(input, script)).toEqual([2, 3, 5])
+  })
+
   test('pick by identifier and then index', () => {
     const input = { foo: [1, 1, 2, 3, 5, 8, 13] }
     const script = '.foo[4]'

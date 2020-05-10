@@ -43,17 +43,18 @@ Index
   = "[" _ index:Number _ "]" strict:"?"? {
     return {
       op: 'index',
-      index: index.value,
+      index: index,
       strict: strict == null,
     }
   }
 
 Slice
-  = "[" start:[0-9]+ ":" end:[0-9]+ "]" {
+  = "[" start:Number? ":" end:Number? "]" strict:"?"? {
     return {
       op: 'slice',
-      start: toNumber(start),
-      end: toNumber(end),
+      start: null === start ? undefined : start,
+      end: null === end ? undefined : end,
+      strict: strict == null,
     }
   }
 
@@ -73,10 +74,10 @@ Pick
       strict: strict == null,
     }
   }
-  / "[" _ name: [^\]]+ _ "]" strict:"?"? {
+  / "[" _ name:String _ "]" strict:"?"? {
     return {
       op: 'pick',
-      key: name.join(''),
+      key: name,
       strict: strict == null,
     }
   }
@@ -95,14 +96,17 @@ Operation
   / Filter       // Must have context
 
 Literal
-  = Number
+  = number:Number { return literal(number) }
   / "null" { return literal(null) }
   / "undefined" { return literal(undefined) }
-  / "'" string:[^']+ "'" { return literal(string.join('')) }
-  / '"' string:[^"]+ '"' { return literal(string.join('')) }
+  / string:String { return literal(string) }
 
 Number
-  = negative:"-"? number:[0-9]+ { return literal(toNumber(number, negative)) }
+  = negative:"-"? number:[0-9]+ { return toNumber(number, negative) }
+
+String // Todo: real quoted strings
+  = "'" string:[^']+ "'" { return string.join('') }
+  / '"' string:[^"]+ '"' { return string.join('') }
 
 CreateArray
   = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {

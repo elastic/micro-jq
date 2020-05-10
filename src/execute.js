@@ -58,6 +58,22 @@ function evaluateOpCodes(context, opCodes) {
         }, [])
         break
 
+      case 'slice':
+        context = context.reduce((result, each) => {
+          if ('undefined' === typeof each.slice) {
+            if (opCode.strict) {
+              throw new Error('Cannot slice ' + typeof each)
+            }
+            return result
+          }
+          if (undefined === opCode.start && undefined === opCode.end) {
+              throw new Error('Cannot slice with no offsets')
+          }
+          result.push(each.slice(opCode.start, opCode.end))
+          return result
+        }, [])
+        break
+
       case 'explode':
         context = context.reduce((result, each) => {
           if (each == null) {

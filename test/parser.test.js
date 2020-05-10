@@ -46,6 +46,21 @@ Array [
 `)
 })
 
+test('pick with object index', () => {
+  expect(parse('.["foo"]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "key": "foo",
+    "op": "pick",
+    "strict": true,
+  },
+]
+`)
+})
+
 test('nested keys', () => {
   expect(parse('.foo.bar')).toMatchInlineSnapshot(`
 Array [
@@ -107,6 +122,71 @@ Array [
 ]
 `)
 })
+
+test('slice an array', () => {
+  expect(parse('.[1:3]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": 3,
+    "op": "slice",
+    "start": 1,
+    "strict": true,
+  },
+]
+`)
+})
+
+test('slice an array with negative offsets', () => {
+  expect(parse('.[-3:-1]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": -1,
+    "op": "slice",
+    "start": -3,
+    "strict": true,
+  },
+]
+`)
+})
+
+test('slice an array with no start', () => {
+  expect(parse('.[:3]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": 3,
+    "op": "slice",
+    "start": undefined,
+    "strict": true,
+  },
+]
+`)
+})
+
+test('slice an array with no end', () => {
+  expect(parse('.[1:]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": undefined,
+    "op": "slice",
+    "start": 1,
+    "strict": true,
+  },
+]
+`)
+})
+
 test('get all values from an array', () => {
   expect(parse('.[]')).toMatchInlineSnapshot(`
 Array [
