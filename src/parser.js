@@ -162,7 +162,7 @@ function peg$parse(input, options) {
       peg$c13 = peg$literalExpectation("]", false),
       peg$c14 = "?",
       peg$c15 = peg$literalExpectation("?", false),
-      peg$c16 = function(identifer, name, subscript, strict) {
+      peg$c16 = function(name, subscript, strict) {
           const hasBrackets = subscript != null
           const hasIndex = hasBrackets && subscript[1] != null && subscript[1].length > 0
 
@@ -634,7 +634,7 @@ function peg$parse(input, options) {
             }
             if (s5 !== peg$FAILED) {
               peg$savedPos = s0;
-              s1 = peg$c16(s2, s3, s4, s5);
+              s1 = peg$c16(s3, s4, s5);
               s0 = s1;
             } else {
               peg$currPos = s0;

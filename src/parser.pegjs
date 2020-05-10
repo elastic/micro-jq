@@ -31,7 +31,7 @@ Pipe
   = "|"
 
 Filter
-  = _ identifer: "." name: Identifier subscript:("[" [0-9]* "]")? strict:"?"? {
+  = _ "." name: Identifier subscript:("[" [0-9]* "]")? strict:"?"? {
     const hasBrackets = subscript != null
     const hasIndex = hasBrackets && subscript[1] != null && subscript[1].length > 0
 
