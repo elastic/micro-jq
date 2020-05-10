@@ -19,9 +19,8 @@ Script
 Expression
   = head:Operation tail:(_ Pipe* _ Operation)* {
     return tail.reduce(function(result, element) {
-      result.push(element[3])
-      return result
-    }, [head])
+      return result.concat(element[3])
+    }, Array.isArray(head) ? head : [head])
   }
 
 _ "whitespace"
@@ -31,29 +30,69 @@ Pipe
   = "|"
 
 Filter
-  = _ "." name: Identifier subscript:("[" [0-9]* "]")? strict:"?"? {
-    const hasBrackets = subscript != null
-    const hasIndex = hasBrackets && subscript[1] != null && subscript[1].length > 0
+  = Traversal+
 
+Traversal
+  = Index
+  / Slice
+  / Explode
+  / Pick
+  / Context
+
+Index
+  = "[" _ index:Number _ "]" strict:"?"? {
+    return {
+      op: 'index',
+      index: index.value,
+      strict: strict == null,
+    }
+  }
+
+Slice
+  = "[" start:[0-9]+ ":" end:[0-9]+ "]" {
+    return {
+      op: 'slice',
+      start: toNumber(start),
+      end: toNumber(end),
+    }
+  }
+
+Explode
+  = "[]" strict:"?"? {
+    return {
+      op: 'explode',
+      strict: strict == null,
+    }
+  }
+
+Pick
+  = "." name: Identifier strict:"?"? {
     return {
       op: 'pick',
       key: name,
-      explode: hasBrackets && !hasIndex,
-      index: hasIndex ? toNumber(subscript[1]) : null,
-      strict: strict == null
+      strict: strict == null,
     }
   }
-  / _ ".[]" strict:"?"? { return { op: 'explode', strict: strict == null } }
-  / _ ".[" start:[0-9]+ ":" end:[0-9]+ "]" { return { op: 'slice', start: toNumber(start), end: toNumber(end) } }
-  / _ ".[" index:Number "]" strict:"?"? { return { op: 'index', index: index.value, strict: strict == null } }
-  / _ ".[" name: [^\]]+ "]" strict:"?"? { return { op: 'pick', key: name.join(''), strict: strict == null } }
-  / _ "." { return { op: 'current_context' } }
+  / "[" _ name: [^\]]+ _ "]" strict:"?"? {
+    return {
+      op: 'pick',
+      key: name.join(''),
+      strict: strict == null,
+    }
+  }
+
+Context
+  = "." {
+    return {
+      op: 'current_context'
+    }
+  }
 
 Operation
-  = Literal
-  / Filter
-  / CreateArray
-  / CreateObject
+  = Literal      // Must be bare
+  / CreateArray  // Must be bare
+  / CreateObject // Must be bare
+  / Filter       // Must have context
 
 Literal
   = Number

@@ -64,6 +64,12 @@ describe('pick values', () => {
     expect(executeScript(input, script)).toEqual(5)
   })
 
+  test('pick by identifier and then index by negative number', () => {
+    const input = { foo: [1, 1, 2, 3, 5, 8, 13] }
+    const script = '.foo[-4]'
+    expect(executeScript(input, script)).toEqual(3)
+  })
+
   test('pick by identifier, index, then identifier again', () => {
     const input = { foo: [ { bar: 1 }, { bar: 2 } ] }
     const script = '.foo[1].bar'

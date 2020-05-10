@@ -32,17 +32,6 @@ function evaluateOpCodes(context, opCodes) {
             return result
           }
           let picked = each[opCode.key]
-          if (opCode.explode) {
-            if (!Array.isArray(picked)) {
-              throw new Error('Cannot iterate over ' + typeof picked)
-            }
-            return result.concat(picked)
-          } else if (opCode.index != null) {
-            if (!Array.isArray(picked)) {
-              throw new Error('Cannot index into ' + typeof picked)
-            }
-            picked = picked[opCode.index]
-          }
           result.push(picked)
           return result
         }, [])
