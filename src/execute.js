@@ -49,12 +49,24 @@ function evaluateOpCodes(context, opCodes) {
         break
 
       case 'index':
-        context = context.map(x => {
-          if (!Array.isArray(x)) {
-            throw new Error('Can only index into arrays')
+        context = context.reduce((result, each) => {
+          if (!Array.isArray(each)) {
+            if (opCode.strict) {
+              throw new Error('Can only index into arrays')
+            }
+            return result
           }
-          return x[opCode.index]
-        })
+          let indexed
+          if (Math.abs(opCode.index) > each.length || opCode.index === each.length) {
+            indexed = null
+          } else if (opCode.index < 0) {
+            indexed = each.slice(opCode.index)[0]
+          } else {
+            indexed = each[opCode.index]
+          }
+          result.push(indexed)
+          return result
+        }, [])
         break
 
       case 'explode':

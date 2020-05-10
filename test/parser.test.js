@@ -79,11 +79,35 @@ Array [
   Object {
     "index": 1,
     "op": "index",
+    "strict": true,
   },
 ]
 `)
 })
 
+test('index an array with negative index', () => {
+  expect(parse('.[-1]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "index": -1,
+    "op": "index",
+    "strict": true,
+  },
+]
+`)
+})
+
+test('index non-strictly', () => {
+  expect(parse('.[1]?')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "index": 1,
+    "op": "index",
+    "strict": false,
+  },
+]
+`)
+})
 test('get all values from an array', () => {
   expect(parse('.[]')).toMatchInlineSnapshot(`
 Array [

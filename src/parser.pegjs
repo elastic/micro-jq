@@ -1,8 +1,8 @@
 // vim:nowrap:
 
 {
-  function toNumber(stringArray) {
-    return parseInt(stringArray.join(''), 10)
+  function toNumber(stringArray, negative) {
+    return parseInt(stringArray.join(''), 10) * ( negative ? -1 : 1 )
   }
 
   function literal(value) {
@@ -45,7 +45,7 @@ Filter
   }
   / _ ".[]" strict:"?"? { return { op: 'explode', strict: strict == null } }
   / _ ".[" start:[0-9]+ ":" end:[0-9]+ "]" { return { op: 'slice', start: toNumber(start), end: toNumber(end) } }
-  / _ ".[" index:[0-9]+ "]" { return { op: 'index', index: toNumber(index) } }
+  / _ ".[" index:Number "]" strict:"?"? { return { op: 'index', index: index.value, strict: strict == null } }
   / _ ".[" name: [^\]]+ "]" strict:"?"? { return { op: 'pick', key: name.join(''), strict: strict == null } }
   / _ "." { return { op: 'current_context' } }
 
@@ -56,11 +56,14 @@ Operation
   / CreateObject
 
 Literal
-  = number:[0-9]+ { return literal(toNumber(number)) }
+  = Number
   / "null" { return literal(null) }
   / "undefined" { return literal(undefined) }
   / "'" string:[^']+ "'" { return literal(string.join('')) }
   / '"' string:[^"]+ '"' { return literal(string.join('')) }
+
+Number
+  = negative:"-"? number:[0-9]+ { return literal(toNumber(number, negative)) }
 
 CreateArray
   = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {
