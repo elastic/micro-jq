@@ -104,7 +104,7 @@ Literal
 Number
   = negative:"-"? number:[0-9]+ { return toNumber(number, negative) }
 
-String // Todo: real quoted strings
+String
   = "'" string:[^']+ "'" { return string.join('') }
   / '"' string:[^"]+ '"' { return string.join('') }
 
