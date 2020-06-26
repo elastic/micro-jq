@@ -67,7 +67,7 @@ function evaluateOpCodes(context, opCodes) {
             return result
           }
           if (undefined === opCode.start && undefined === opCode.end) {
-              throw new Error('Cannot slice with no offsets')
+            throw new Error('Cannot slice with no offsets')
           }
           result.push(each.slice(opCode.start, opCode.end))
           return result
