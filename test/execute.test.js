@@ -90,6 +90,12 @@ describe('pick values', () => {
     expect(executeScript(input, script)).toEqual([2, 3, 5])
   })
 
+  test('slice with end offset greater than start', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[5:2]'
+    expect(executeScript(input, script)).toEqual([])
+  })
+
   test('pick by identifier and then index', () => {
     const input = { foo: [1, 1, 2, 3, 5, 8, 13] }
     const script = '.foo[4]'
