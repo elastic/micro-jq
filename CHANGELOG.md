@@ -1,3 +1,8 @@
+## [`1.2.0`](https://github.com/elastic/micro-jq/tree/v1.2.0)
+
+- Better support for slices, indexing, and improved composability #3
+- Update dependencies
+
 ## [`1.1.0`](https://github.com/elastic/micro-jq/tree/v1.1.0)
 
 - Update dependencies
