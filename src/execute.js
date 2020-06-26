@@ -32,29 +32,46 @@ function evaluateOpCodes(context, opCodes) {
             return result
           }
           let picked = each[opCode.key]
-          if (opCode.explode) {
-            if (!Array.isArray(picked)) {
-              throw new Error('Cannot iterate over ' + typeof picked)
-            }
-            return result.concat(picked)
-          } else if (opCode.index != null) {
-            if (!Array.isArray(picked)) {
-              throw new Error('Cannot index into ' + typeof picked)
-            }
-            picked = picked[opCode.index]
-          }
           result.push(picked)
           return result
         }, [])
         break
 
       case 'index':
-        context = context.map(x => {
-          if (!Array.isArray(x)) {
-            throw new Error('Can only index into arrays')
+        context = context.reduce((result, each) => {
+          if (!Array.isArray(each)) {
+            if (opCode.strict) {
+              throw new Error('Can only index into arrays')
+            }
+            return result
           }
-          return x[opCode.index]
-        })
+          let indexed
+          if (Math.abs(opCode.index) > each.length || opCode.index === each.length) {
+            indexed = null
+          } else if (opCode.index < 0) {
+            indexed = each.slice(opCode.index)[0]
+          } else {
+            indexed = each[opCode.index]
+          }
+          result.push(indexed)
+          return result
+        }, [])
+        break
+
+      case 'slice':
+        context = context.reduce((result, each) => {
+          if ('undefined' === typeof each.slice) {
+            if (opCode.strict) {
+              throw new Error('Cannot slice ' + typeof each)
+            }
+            return result
+          }
+          if (undefined === opCode.start && undefined === opCode.end) {
+            throw new Error('Cannot slice with no offsets')
+          }
+          result.push(each.slice(opCode.start, opCode.end))
+          return result
+        }, [])
         break
 
       case 'explode':

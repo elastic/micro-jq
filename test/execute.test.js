@@ -34,10 +34,78 @@ describe('pick values', () => {
     expect(executeScript(input, script)).toEqual(5)
   })
 
+  test('pick negative index', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[-4]'
+    expect(executeScript(input, script)).toEqual(3)
+  })
+
+  test('pick first index by negative length', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[-7]'
+    expect(executeScript(input, script)).toEqual(1)
+  })
+
+  test('pick out of bounds index', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[7]'
+    expect(executeScript(input, script)).toEqual(null)
+  })
+
+  test('pick out of bounds negative index', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[-8]'
+    expect(executeScript(input, script)).toEqual(null)
+  })
+
+  test('slice', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[2:5]'
+    expect(executeScript(input, script)).toEqual([2, 3, 5])
+  })
+
+  test('slice with no start', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[:5]'
+    expect(executeScript(input, script)).toEqual([1, 1, 2, 3, 5])
+  })
+
+  test('slice with no end', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[2:]'
+    expect(executeScript(input, script)).toEqual([2, 3, 5, 8, 13])
+  })
+
+  test('slice with no offsets', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[:]'
+    expect(() =>
+      executeScript(input, script)
+    ).toThrowErrorMatchingInlineSnapshot('"Cannot slice with no offsets"')
+  })
+
+  test('slice with negative offsets', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[-5:-2]'
+    expect(executeScript(input, script)).toEqual([2, 3, 5])
+  })
+
+  test('slice with end offset greater than start', () => {
+    const input = [1, 1, 2, 3, 5, 8, 13]
+    const script = '.[5:2]'
+    expect(executeScript(input, script)).toEqual([])
+  })
+
   test('pick by identifier and then index', () => {
     const input = { foo: [1, 1, 2, 3, 5, 8, 13] }
     const script = '.foo[4]'
     expect(executeScript(input, script)).toEqual(5)
+  })
+
+  test('pick by identifier and then index by negative number', () => {
+    const input = { foo: [1, 1, 2, 3, 5, 8, 13] }
+    const script = '.foo[-4]'
+    expect(executeScript(input, script)).toEqual(3)
   })
 
   test('pick by identifier, index, then identifier again', () => {

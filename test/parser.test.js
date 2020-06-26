@@ -14,8 +14,6 @@ test('bare identifier', () => {
   expect(parse('.foo')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": null,
     "key": "foo",
     "op": "pick",
     "strict": true,
@@ -28,8 +26,6 @@ test('bare identifier with punctuation', () => {
   expect(parse('.$foo')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": null,
     "key": "$foo",
     "op": "pick",
     "strict": true,
@@ -42,11 +38,24 @@ test('optional bare identifier', () => {
   expect(parse('.foo?')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": null,
     "key": "foo",
     "op": "pick",
     "strict": false,
+  },
+]
+`)
+})
+
+test('pick with object index', () => {
+  expect(parse('.["foo"]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "key": "foo",
+    "op": "pick",
+    "strict": true,
   },
 ]
 `)
@@ -56,15 +65,11 @@ test('nested keys', () => {
   expect(parse('.foo.bar')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": null,
     "key": "foo",
     "op": "pick",
     "strict": true,
   },
   Object {
-    "explode": false,
-    "index": null,
     "key": "bar",
     "op": "pick",
     "strict": true,
@@ -77,8 +82,106 @@ test('index an array', () => {
   expect(parse('.[1]')).toMatchInlineSnapshot(`
 Array [
   Object {
+    "op": "current_context",
+  },
+  Object {
     "index": 1,
     "op": "index",
+    "strict": true,
+  },
+]
+`)
+})
+
+test('index an array with negative index', () => {
+  expect(parse('.[-1]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "index": -1,
+    "op": "index",
+    "strict": true,
+  },
+]
+`)
+})
+
+test('index non-strictly', () => {
+  expect(parse('.[1]?')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "index": 1,
+    "op": "index",
+    "strict": false,
+  },
+]
+`)
+})
+
+test('slice an array', () => {
+  expect(parse('.[1:3]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": 3,
+    "op": "slice",
+    "start": 1,
+    "strict": true,
+  },
+]
+`)
+})
+
+test('slice an array with negative offsets', () => {
+  expect(parse('.[-3:-1]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": -1,
+    "op": "slice",
+    "start": -3,
+    "strict": true,
+  },
+]
+`)
+})
+
+test('slice an array with no start', () => {
+  expect(parse('.[:3]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": 3,
+    "op": "slice",
+    "start": undefined,
+    "strict": true,
+  },
+]
+`)
+})
+
+test('slice an array with no end', () => {
+  expect(parse('.[1:]')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "op": "current_context",
+  },
+  Object {
+    "end": undefined,
+    "op": "slice",
+    "start": 1,
+    "strict": true,
   },
 ]
 `)
@@ -87,6 +190,9 @@ Array [
 test('get all values from an array', () => {
   expect(parse('.[]')).toMatchInlineSnapshot(`
 Array [
+  Object {
+    "op": "current_context",
+  },
   Object {
     "op": "explode",
     "strict": true,
@@ -99,10 +205,13 @@ test('pick a value and index into it', () => {
   expect(parse('.foo[1]')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": 1,
     "key": "foo",
     "op": "pick",
+    "strict": true,
+  },
+  Object {
+    "index": 1,
+    "op": "index",
     "strict": true,
   },
 ]
@@ -113,15 +222,15 @@ test('pick value from an array', () => {
   expect(parse('.foo[].bar')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": true,
-    "index": null,
     "key": "foo",
     "op": "pick",
     "strict": true,
   },
   Object {
-    "explode": false,
-    "index": null,
+    "op": "explode",
+    "strict": true,
+  },
+  Object {
     "key": "bar",
     "op": "pick",
     "strict": true,
@@ -134,15 +243,16 @@ test('pick a value from an array and pick from that', () => {
   expect(parse('.foo[1].bar')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": 1,
     "key": "foo",
     "op": "pick",
     "strict": true,
   },
   Object {
-    "explode": false,
-    "index": null,
+    "index": 1,
+    "op": "index",
+    "strict": true,
+  },
+  Object {
     "key": "bar",
     "op": "pick",
     "strict": true,
@@ -155,15 +265,11 @@ test('pipe commands together', () => {
   expect(parse('.foo | .bar')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "explode": false,
-    "index": null,
     "key": "foo",
     "op": "pick",
     "strict": true,
   },
   Object {
-    "explode": false,
-    "index": null,
     "key": "bar",
     "op": "pick",
     "strict": true,
@@ -223,8 +329,6 @@ Array [
     "values": Array [
       Array [
         Object {
-          "explode": false,
-          "index": null,
           "key": "foo",
           "op": "pick",
           "strict": true,
@@ -232,8 +336,6 @@ Array [
       ],
       Array [
         Object {
-          "explode": false,
-          "index": null,
           "key": "bar",
           "op": "pick",
           "strict": true,
@@ -253,15 +355,16 @@ Array [
     "values": Array [
       Array [
         Object {
-          "explode": false,
-          "index": 1,
           "key": "foo",
           "op": "pick",
           "strict": true,
         },
         Object {
-          "explode": false,
-          "index": null,
+          "index": 1,
+          "op": "index",
+          "strict": true,
+        },
+        Object {
           "key": "bar",
           "op": "pick",
           "strict": true,
@@ -269,15 +372,16 @@ Array [
       ],
       Array [
         Object {
-          "explode": false,
-          "index": 1,
           "key": "foo",
           "op": "pick",
           "strict": true,
         },
         Object {
-          "explode": false,
-          "index": null,
+          "index": 1,
+          "op": "index",
+          "strict": true,
+        },
+        Object {
           "key": "bar",
           "op": "pick",
           "strict": true,
@@ -361,8 +465,6 @@ Array [
         "key": "foo",
         "value": Array [
           Object {
-            "explode": false,
-            "index": null,
             "key": "bar",
             "op": "pick",
             "strict": true,
@@ -373,15 +475,11 @@ Array [
         "key": "baz",
         "value": Array [
           Object {
-            "explode": false,
-            "index": null,
             "key": "quux",
             "op": "pick",
             "strict": true,
           },
           Object {
-            "explode": false,
-            "index": null,
             "key": "schmee",
             "op": "pick",
             "strict": true,

@@ -1,8 +1,8 @@
 // vim:nowrap:
 
 {
-  function toNumber(stringArray) {
-    return parseInt(stringArray.join(''), 10)
+  function toNumber(stringArray, negative) {
+    return parseInt(stringArray.join(''), 10) * ( negative ? -1 : 1 )
   }
 
   function literal(value) {
@@ -19,9 +19,8 @@ Script
 Expression
   = head:Operation tail:(_ Pipe* _ Operation)* {
     return tail.reduce(function(result, element) {
-      result.push(element[3])
-      return result
-    }, [head])
+      return result.concat(element[3])
+    }, Array.isArray(head) ? head : [head])
   }
 
 _ "whitespace"
@@ -31,36 +30,83 @@ Pipe
   = "|"
 
 Filter
-  = _ identifer: "." name: Identifier subscript:("[" [0-9]* "]")? strict:"?"? {
-    const hasBrackets = subscript != null
-    const hasIndex = hasBrackets && subscript[1] != null && subscript[1].length > 0
+  = Traversal+
 
+Traversal
+  = Index
+  / Slice
+  / Explode
+  / Pick
+  / Context
+
+Index
+  = "[" _ index:Number _ "]" strict:"?"? {
+    return {
+      op: 'index',
+      index: index,
+      strict: strict == null,
+    }
+  }
+
+Slice
+  = "[" start:Number? ":" end:Number? "]" strict:"?"? {
+    return {
+      op: 'slice',
+      start: null === start ? undefined : start,
+      end: null === end ? undefined : end,
+      strict: strict == null,
+    }
+  }
+
+Explode
+  = "[]" strict:"?"? {
+    return {
+      op: 'explode',
+      strict: strict == null,
+    }
+  }
+
+Pick
+  = "." name: Identifier strict:"?"? {
     return {
       op: 'pick',
       key: name,
-      explode: hasBrackets && !hasIndex,
-      index: hasIndex ? toNumber(subscript[1]) : null,
-      strict: strict == null
+      strict: strict == null,
     }
   }
-  / _ ".[]" strict:"?"? { return { op: 'explode', strict: strict == null } }
-  / _ ".[" start:[0-9]+ ":" end:[0-9]+ "]" { return { op: 'slice', start: toNumber(start), end: toNumber(end) } }
-  / _ ".[" index:[0-9]+ "]" { return { op: 'index', index: toNumber(index) } }
-  / _ ".[" name: [^\]]+ "]" strict:"?"? { return { op: 'pick', key: name.join(''), strict: strict == null } }
-  / _ "." { return { op: 'current_context' } }
+  / "[" _ name:String _ "]" strict:"?"? {
+    return {
+      op: 'pick',
+      key: name,
+      strict: strict == null,
+    }
+  }
+
+Context
+  = "." {
+    return {
+      op: 'current_context'
+    }
+  }
 
 Operation
-  = Literal
-  / Filter
-  / CreateArray
-  / CreateObject
+  = Literal      // Must be bare
+  / CreateArray  // Must be bare
+  / CreateObject // Must be bare
+  / Filter       // Must have context
 
 Literal
-  = number:[0-9]+ { return literal(toNumber(number)) }
+  = number:Number { return literal(number) }
   / "null" { return literal(null) }
   / "undefined" { return literal(undefined) }
-  / "'" string:[^']+ "'" { return literal(string.join('')) }
-  / '"' string:[^"]+ '"' { return literal(string.join('')) }
+  / string:String { return literal(string) }
+
+Number
+  = negative:"-"? number:[0-9]+ { return toNumber(number, negative) }
+
+String
+  = "'" string:[^']+ "'" { return string.join('') }
+  / '"' string:[^"]+ '"' { return string.join('') }
 
 CreateArray
   = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {
