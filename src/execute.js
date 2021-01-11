@@ -76,17 +76,22 @@ function evaluateOpCodes(context, opCodes) {
 
       case 'explode':
         context = context.reduce((result, each) => {
-          if (each == null) {
-            return result
+          if (Array.isArray(each)) {
+            return result.concat(each)
+          } else if (typeof each === 'object' && each != null) {
+            return result.concat(Object.values(each))
           }
 
-          if (!Array.isArray(each)) {
-            if (opCode.strict) {
-              throw new Error('Cannot iterate over ' + typeof each)
+          if (opCode.strict) {
+            let type = typeof each
+            if (each === null) {
+              // jq throws an error specifically for null, so let's
+              // distinguish that from object.
+              type = 'null'
             }
-            return result
+            throw new Error('Cannot iterate over ' + type)
           }
-          return result.concat(each)
+          return result
         }, [])
         break
 

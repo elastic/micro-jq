@@ -196,6 +196,34 @@ describe('create object', () => {
   })
 })
 
+describe('iterator', () => {
+  test('array', () => {
+    const input = [ 'foo', 'bar' ]
+    const script = '.[]'
+    expect(executeScript(input, script)).toEqual(['foo', 'bar'])
+  })
+  
+  test('object', () => {
+    const input = {foo: 'a', bar: 'b' }
+    const script = '.[]'
+    expect(executeScript(input, script)).toEqual(['a', 'b'])
+  })
+  
+  test('nested', () => {
+    const input = {foo: [{a: 1, b: 2}], bar: [{a: 3, b: 4}]}
+    const script = '.[].[].b'
+    expect(executeScript(input, script)).toEqual([2, 4])
+  })
+  
+  test('cannot iterate over null', () => {
+    const input = null
+    const script = '.[]'
+    expect(() =>
+      executeScript(input, script)
+    ).toThrowErrorMatchingInlineSnapshot('"Cannot iterate over null"')
+  })
+})
+
 test('nested structures', () => {
   const input = {
     foo: [
