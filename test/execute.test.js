@@ -194,6 +194,17 @@ describe('create object', () => {
       bar: 'bar',
     })
   })
+
+  test('with iterators', () => {
+    const input = { foo: [ 'a', 'b' ], bar: [ 1, 2 ] }
+    const script = '{ foo: .foo[], bar: .bar[] }'
+    expect(executeScript(input, script)).toEqual([
+      { foo: 'a', bar: 1},
+      { foo: 'a', bar: 2},
+      { foo: 'b', bar: 1},
+      { foo: 'b', bar: 2},
+    ])
+  })
 })
 
 describe('iterator', () => {
@@ -215,6 +226,35 @@ describe('iterator', () => {
     expect(executeScript(input, script)).toEqual([2, 4])
   })
   
+  test('object, nested', () => {
+    const input = {foo: [{a: 1, b: 2}, {a: 3, b: 4}], bar: [{a: 5, b: 6}, {a: 7, b: 8}]}
+    const script = '{foo: .[].[].a, bar: .[].[].b}'
+    expect(executeScript(input, script)).toEqual([
+      { foo: 1, bar: 2},
+      { foo: 1, bar: 4},
+      { foo: 1, bar: 6},
+      { foo: 1, bar: 8},
+      { foo: 3, bar: 2},
+      { foo: 3, bar: 4},
+      { foo: 3, bar: 6},
+      { foo: 3, bar: 8},
+      { foo: 5, bar: 2},
+      { foo: 5, bar: 4},
+      { foo: 5, bar: 6},
+      { foo: 5, bar: 8},
+      { foo: 7, bar: 2},
+      { foo: 7, bar: 4},
+      { foo: 7, bar: 6},
+      { foo: 7, bar: 8},
+    ])
+  })
+
+  test('should not double-promote double-nested single elment array', () => {
+    const input = [[1]]
+    const script = '{foo: .[]}'
+    expect(executeScript(input, script)).toEqual({foo: [1]})
+  })
+
   test('cannot iterate over null', () => {
     const input = null
     const script = '.[]'

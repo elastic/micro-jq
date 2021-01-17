@@ -6,7 +6,7 @@ module.exports = function executeScript(input, script) {
   return evaluateOpCodes([input], opCodes)
 }
 
-function evaluateOpCodes(context, opCodes) {
+function evaluateOpCodes(context, opCodes, callback) {
   if (!Array.isArray(opCodes)) {
     opCodes = [opCodes]
   }
@@ -93,6 +93,9 @@ function evaluateOpCodes(context, opCodes) {
           }
           return result
         }, [])
+        if (callback) {
+          callback(context.length)
+        }
         break
 
       case 'create_array':
@@ -100,10 +103,60 @@ function evaluateOpCodes(context, opCodes) {
         break
 
       case 'create_object':
-        context = [ opCode.entries.reduce((result, each) => {
-          result[each.key] = evaluateOpCodes(context, each.value)
+        function buildObject(current, ops) {
+          let result = []
+          let key, values
+          [key, values] = ops.shift()
+          values.forEach(value => {
+            current[key] = value
+            if (ops.length > 0) {
+              result = result.concat(buildObject({...current}, [...ops]))
+            } else {
+              result.push({...current})
+            }
+          })
+
           return result
-        }, {}) ]
+        }
+
+        context = buildObject({}, Object.entries(opCode.entries.reduce((result, each) => {
+          let exploded = false
+          let explodedLen = 0
+          function cb(len) {
+            exploded = true
+            explodedLen = len
+          }
+          let values = evaluateOpCodes(context, each.value, cb)
+          if (!exploded) {
+            result[each.key] = [values]
+          } else {
+            // We need to determine what to do with an exploded value
+            // based on the reported length during explosion.
+            switch (explodedLen) {
+              case 0:
+                // The promotion attempt on this value during regular
+                // evaluation more than likely would have caused it
+                // to be rendered as undefined. Just set to an empty
+                // array.
+                result[each.key] = []
+              break
+              
+              case 1:
+                // Value would have been auto-promoted, regardless of
+                // what it is now. "Demote" it as if we didn't
+                // explode it at all, so we can iterate on it.
+                result[each.key] = [values]
+              break
+
+              default:
+                // Safe to just pass the array for iteration here.
+                result[each.key] = values
+              break
+            }
+          }
+
+          return result
+        }, {})))
         break
 
       default:
