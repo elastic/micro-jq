@@ -14,7 +14,7 @@ extends:
   - plugin:jest/recommended
 
 parserOptions:
-  ecmaVersion: 2016
+  ecmaVersion: 2018
 
 rules:
   indent:
@@ -37,4 +37,8 @@ rules:
 
   comma-dangle:
   - error
-  - always-multiline
+  - arrays: always-multiline
+    objects: always-multiline
+    imports: always-multiline
+    exports: always-multiline
+    functions: only-multiline
