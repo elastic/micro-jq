@@ -311,4 +311,18 @@ describe('nested structures', () => {
       { name: 'bar-b', value: 4 },
     ])
   })
+
+  test('#3', () => {
+    const input = {
+      data: {
+        foo: {
+          entries: [{ name: 'foo-a', a: { b: { c: { d: [{ e: 1 }, { e: 2 }] } } } }],
+        },
+      },
+    }
+
+    expect(
+      executeScript(input, '[.data[].entries[] | {name: .name, values: [ .a.b.c.d[] | .e ]}]')
+    ).toEqual([{ name: 'foo-a', values: [1, 2] }])
+  })
 })

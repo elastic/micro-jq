@@ -39,7 +39,7 @@ function evaluateOpCodes(context, opCodes, callback) {
         break
 
       case 'create_array':
-        context = evaluateOpCode_create_array(context, opCode, callback)
+        context = evaluateOpCode_create_array(context, opCode)
         break
 
       case 'create_object':
@@ -134,11 +134,15 @@ function evaluateOpCode_explode(context, opCode, callback) {
   return context
 }
 
-function evaluateOpCode_create_array(context, opCode, callback) {
+function evaluateOpCode_create_array(context, opCode) {
   return [
     opCode.values.reduce((result, each) => {
       const exploder = makeExploder()
-      let values = evaluateOpCodes(context, [...each], makeExploderCb(exploder, callback))
+      // Array creation terminates an explode chain - all generated
+      // results will get collected in the singular array. As such,
+      // no parent is called to makeExploderCb, and none is taken by
+      // this function.
+      let values = evaluateOpCodes(context, [...each], makeExploderCb(exploder))
       if (!exploder.exploded) {
         result.push(values)
       } else {
