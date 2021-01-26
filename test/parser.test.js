@@ -496,8 +496,7 @@ Array [
   })
 
   test('multiple keys', () => {
-    expect(parse("{ foo: 1, bar: 'baz', quux: \"schmee\" }"))
-      .toMatchInlineSnapshot(`
+    expect(parse('{ foo: 1, bar: \'baz\', quux: "schmee" }')).toMatchInlineSnapshot(`
 Array [
   Object {
     "entries": Array [

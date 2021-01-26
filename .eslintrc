@@ -8,10 +8,12 @@ env:
 
 plugins:
   - jest
+  - prettier
 
 extends:
   - eslint:recommended
   - plugin:jest/recommended
+  - plugin:prettier/recommended
 
 parserOptions:
   ecmaVersion: 2018
@@ -42,3 +44,6 @@ rules:
     imports: always-multiline
     exports: always-multiline
     functions: only-multiline
+
+  prettier/prettier:
+  - error

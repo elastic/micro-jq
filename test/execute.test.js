@@ -79,9 +79,9 @@ describe('pick values', () => {
   test('slice with no offsets', () => {
     const input = [1, 1, 2, 3, 5, 8, 13]
     const script = '.[:]'
-    expect(() =>
-      executeScript(input, script)
-    ).toThrowErrorMatchingInlineSnapshot('"Cannot slice with no offsets"')
+    expect(() => executeScript(input, script)).toThrowErrorMatchingInlineSnapshot(
+      '"Cannot slice with no offsets"'
+    )
   })
 
   test('slice with negative offsets', () => {
@@ -109,7 +109,7 @@ describe('pick values', () => {
   })
 
   test('pick by identifier, index, then identifier again', () => {
-    const input = { foo: [ { bar: 1 }, { bar: 2 } ] }
+    const input = { foo: [{ bar: 1 }, { bar: 2 }] }
     const script = '.foo[1].bar'
     expect(executeScript(input, script)).toEqual(2)
   })
@@ -119,9 +119,9 @@ describe('lazy operator', () => {
   test('cannot pick a key from a number', () => {
     const input = 1
     const script = '.foo'
-    expect(() =>
-      executeScript(input, script)
-    ).toThrowErrorMatchingInlineSnapshot('"Cannot index number with foo"')
+    expect(() => executeScript(input, script)).toThrowErrorMatchingInlineSnapshot(
+      '"Cannot index number with foo"'
+    )
   })
 
   test('can suppress errors', () => {
@@ -133,9 +133,9 @@ describe('lazy operator', () => {
   test('cannot expand a literal as an array', () => {
     const input = 1
     const script = '.[]'
-    expect(() =>
-      executeScript(input, script)
-    ).toThrowErrorMatchingInlineSnapshot('"Cannot iterate over number"')
+    expect(() => executeScript(input, script)).toThrowErrorMatchingInlineSnapshot(
+      '"Cannot iterate over number"'
+    )
   })
 
   test('can suppress iteration errors', () => {
@@ -159,12 +159,7 @@ describe('create array', () => {
   })
 
   test('with multiple literal', () => {
-    expect(executeScript(null, "[ 1, \"2\", '3', null ]")).toEqual([
-      1,
-      '2',
-      '3',
-      null,
-    ])
+    expect(executeScript(null, '[ 1, "2", \'3\', null ]')).toEqual([1, '2', '3', null])
   })
 
   test('with filter', () => {
@@ -172,7 +167,7 @@ describe('create array', () => {
   })
 
   test('with complex filter', () => {
-    const input = { foo: [ { bar: 1 }, { bar: 2 } ] }
+    const input = { foo: [{ bar: 1 }, { bar: 2 }] }
     const script = '[ .foo[1].bar ]'
     expect(executeScript(input, script)).toEqual([2])
   })
@@ -184,9 +179,11 @@ describe('create object', () => {
   })
 
   test('with multiple literal', () => {
-    expect(
-      executeScript(null, '{ foo: 42, bar: "baz", quux: { schmee: null } }')
-    ).toEqual({ foo: 42, bar: 'baz', quux: { schmee: null } })
+    expect(executeScript(null, '{ foo: 42, bar: "baz", quux: { schmee: null } }')).toEqual({
+      foo: 42,
+      bar: 'baz',
+      quux: { schmee: null },
+    })
   })
 
   test('with filters', () => {
@@ -196,71 +193,80 @@ describe('create object', () => {
   })
 
   test('with iterators', () => {
-    const input = { foo: [ 'a', 'b' ], bar: [ 1, 2 ] }
+    const input = { foo: ['a', 'b'], bar: [1, 2] }
     const script = '{ foo: .foo[], bar: .bar[] }'
     expect(executeScript(input, script)).toEqual([
-      { foo: 'a', bar: 1},
-      { foo: 'a', bar: 2},
-      { foo: 'b', bar: 1},
-      { foo: 'b', bar: 2},
+      { foo: 'a', bar: 1 },
+      { foo: 'a', bar: 2 },
+      { foo: 'b', bar: 1 },
+      { foo: 'b', bar: 2 },
     ])
   })
 })
 
 describe('iterator', () => {
   test('array', () => {
-    const input = [ 'foo', 'bar' ]
+    const input = ['foo', 'bar']
     const script = '.[]'
     expect(executeScript(input, script)).toEqual(['foo', 'bar'])
   })
-  
+
   test('object', () => {
-    const input = {foo: 'a', bar: 'b' }
+    const input = { foo: 'a', bar: 'b' }
     const script = '.[]'
     expect(executeScript(input, script)).toEqual(['a', 'b'])
   })
-  
+
   test('nested', () => {
-    const input = {foo: [{a: 1, b: 2}], bar: [{a: 3, b: 4}]}
+    const input = { foo: [{ a: 1, b: 2 }], bar: [{ a: 3, b: 4 }] }
     const script = '.[].[].b'
     expect(executeScript(input, script)).toEqual([2, 4])
   })
-  
+
   test('object, nested', () => {
-    const input = {foo: [{a: 1, b: 2}, {a: 3, b: 4}], bar: [{a: 5, b: 6}, {a: 7, b: 8}]}
+    const input = {
+      foo: [
+        { a: 1, b: 2 },
+        { a: 3, b: 4 },
+      ],
+      bar: [
+        { a: 5, b: 6 },
+        { a: 7, b: 8 },
+      ],
+    }
     const script = '{foo: .[].[].a, bar: .[].[].b}'
     expect(executeScript(input, script)).toEqual([
-      { foo: 1, bar: 2},
-      { foo: 1, bar: 4},
-      { foo: 1, bar: 6},
-      { foo: 1, bar: 8},
-      { foo: 3, bar: 2},
-      { foo: 3, bar: 4},
-      { foo: 3, bar: 6},
-      { foo: 3, bar: 8},
-      { foo: 5, bar: 2},
-      { foo: 5, bar: 4},
-      { foo: 5, bar: 6},
-      { foo: 5, bar: 8},
-      { foo: 7, bar: 2},
-      { foo: 7, bar: 4},
-      { foo: 7, bar: 6},
-      { foo: 7, bar: 8},
+      { foo: 1, bar: 2 },
+      { foo: 1, bar: 4 },
+      { foo: 1, bar: 6 },
+      { foo: 1, bar: 8 },
+      { foo: 3, bar: 2 },
+      { foo: 3, bar: 4 },
+      { foo: 3, bar: 6 },
+      { foo: 3, bar: 8 },
+      { foo: 5, bar: 2 },
+      { foo: 5, bar: 4 },
+      { foo: 5, bar: 6 },
+      { foo: 5, bar: 8 },
+      { foo: 7, bar: 2 },
+      { foo: 7, bar: 4 },
+      { foo: 7, bar: 6 },
+      { foo: 7, bar: 8 },
     ])
   })
 
   test('should not double-promote double-nested single elment array', () => {
     const input = [[1]]
     const script = '{foo: .[]}'
-    expect(executeScript(input, script)).toEqual({foo: [1]})
+    expect(executeScript(input, script)).toEqual({ foo: [1] })
   })
 
   test('cannot iterate over null', () => {
     const input = null
     const script = '.[]'
-    expect(() =>
-      executeScript(input, script)
-    ).toThrowErrorMatchingInlineSnapshot('"Cannot iterate over null"')
+    expect(() => executeScript(input, script)).toThrowErrorMatchingInlineSnapshot(
+      '"Cannot iterate over null"'
+    )
   })
 })
 
@@ -279,7 +285,7 @@ describe('nested structures', () => {
 
     expect(executeScript(input, '.foo[] | .bar')).toEqual(['baz', 'quux'])
   })
-  
+
   test('#2', () => {
     const input = {
       data: {
@@ -298,7 +304,11 @@ describe('nested structures', () => {
       },
     }
 
-    expect(executeScript(input, '[.data[].entries[] | {name: .name, value: .a.b.c.d}]')).toEqual(
-      [{name:'foo-a',value:1},{name:'foo-b',value:2},{name:'bar-a',value:3},{name:'bar-b',value:4}])
+    expect(executeScript(input, '[.data[].entries[] | {name: .name, value: .a.b.c.d}]')).toEqual([
+      { name: 'foo-a', value: 1 },
+      { name: 'foo-b', value: 2 },
+      { name: 'bar-a', value: 3 },
+      { name: 'bar-b', value: 4 },
+    ])
   })
 })

@@ -135,64 +135,71 @@ function evaluateOpCode_explode(context, opCode, callback) {
 }
 
 function evaluateOpCode_create_array(context, opCode, callback) {
-  return [ opCode.values.reduce((result, each) => { 
-    const exploder = makeExploder()
-    let values = evaluateOpCodes(context, [...each], makeExploderCb(exploder, callback))
-    if (!exploder.exploded) {
-      result.push(values)
-    } else {
-      switch (exploder.length) {
-        case 0:
-          break
-         
-        case 1:
-          result.push(values)
-          break
+  return [
+    opCode.values.reduce((result, each) => {
+      const exploder = makeExploder()
+      let values = evaluateOpCodes(context, [...each], makeExploderCb(exploder, callback))
+      if (!exploder.exploded) {
+        result.push(values)
+      } else {
+        switch (exploder.length) {
+          case 0:
+            break
 
-        default:
-          result = result.concat(values)
+          case 1:
+            result.push(values)
+            break
+
+          default:
+            result = result.concat(values)
+        }
       }
-    }
 
-    return result
-  }, []) ]
+      return result
+    }, []),
+  ]
 }
 
 function evaluateOpCode_create_object(context, opCode, callback) {
-  return evaluateOpCode_create_object_build({}, Object.entries(opCode.entries.reduce((result, each) => {
-    const exploder = makeExploder()
-    let values = evaluateOpCodes(context, [...each.value], makeExploderCb(exploder, callback))
-    if (!exploder.exploded) {
-      result[each.key] = [values]
-    } else {
-      switch (exploder.length) {
-        case 0:
-          result[each.key] = []
-          break
-        
-        case 1:
+  return evaluateOpCode_create_object_build(
+    {},
+    Object.entries(
+      opCode.entries.reduce((result, each) => {
+        const exploder = makeExploder()
+        let values = evaluateOpCodes(context, [...each.value], makeExploderCb(exploder, callback))
+        if (!exploder.exploded) {
           result[each.key] = [values]
-          break
+        } else {
+          switch (exploder.length) {
+            case 0:
+              result[each.key] = []
+              break
 
-        default:
-          result[each.key] = values
-          break
-      }
-    }
-    return result
-  }, {})))
+            case 1:
+              result[each.key] = [values]
+              break
+
+            default:
+              result[each.key] = values
+              break
+          }
+        }
+        return result
+      }, {})
+    )
+  )
 }
-  
+
 function evaluateOpCode_create_object_build(current, ops) {
   let result = []
   let key, values
-  [key, values] = ops.shift()
-  values.forEach(value => {
+  ;[key, values] = ops.shift()
+  values.forEach((value) => {
     current[key] = value
     if (ops.length > 0) {
-      result = result.concat(evaluateOpCode_create_object_build({...current}, [...ops]))
+      result = result.concat(evaluateOpCode_create_object_build({ ...current }, [...ops]))
     } else {
-      result.push({...current})
+      result.push({ ...current })
     }
   })
   return result
@@ -208,18 +215,18 @@ function evaluateOpCode_pipe(context, opCode, callback) {
       case 0:
         context = []
         break
-      
+
       case 1:
         context = [context]
         break
     }
-    context = context.map(each => evaluateOpCodes([each], [...opCode.out]))
+    context = context.map((each) => evaluateOpCodes([each], [...opCode.out]))
   }
   return context
 }
 
 function makeExploder() {
-  return {exploded: false, length: 0}
+  return { exploded: false, length: 0 }
 }
 
 function makeExploderCb(exploder, callback) {
