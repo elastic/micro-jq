@@ -194,6 +194,17 @@ describe('create object', () => {
       bar: 'bar',
     })
   })
+
+  test('with iterators', () => {
+    const input = { foo: [ 'a', 'b' ], bar: [ 1, 2 ] }
+    const script = '{ foo: .foo[], bar: .bar[] }'
+    expect(executeScript(input, script)).toEqual([
+      { foo: 'a', bar: 1},
+      { foo: 'a', bar: 2},
+      { foo: 'b', bar: 1},
+      { foo: 'b', bar: 2},
+    ])
+  })
 })
 
 describe('iterator', () => {
@@ -215,6 +226,35 @@ describe('iterator', () => {
     expect(executeScript(input, script)).toEqual([2, 4])
   })
   
+  test('object, nested', () => {
+    const input = {foo: [{a: 1, b: 2}, {a: 3, b: 4}], bar: [{a: 5, b: 6}, {a: 7, b: 8}]}
+    const script = '{foo: .[].[].a, bar: .[].[].b}'
+    expect(executeScript(input, script)).toEqual([
+      { foo: 1, bar: 2},
+      { foo: 1, bar: 4},
+      { foo: 1, bar: 6},
+      { foo: 1, bar: 8},
+      { foo: 3, bar: 2},
+      { foo: 3, bar: 4},
+      { foo: 3, bar: 6},
+      { foo: 3, bar: 8},
+      { foo: 5, bar: 2},
+      { foo: 5, bar: 4},
+      { foo: 5, bar: 6},
+      { foo: 5, bar: 8},
+      { foo: 7, bar: 2},
+      { foo: 7, bar: 4},
+      { foo: 7, bar: 6},
+      { foo: 7, bar: 8},
+    ])
+  })
+
+  test('should not double-promote double-nested single elment array', () => {
+    const input = [[1]]
+    const script = '{foo: .[]}'
+    expect(executeScript(input, script)).toEqual({foo: [1]})
+  })
+
   test('cannot iterate over null', () => {
     const input = null
     const script = '.[]'
@@ -224,17 +264,41 @@ describe('iterator', () => {
   })
 })
 
-test('nested structures', () => {
-  const input = {
-    foo: [
-      {
-        bar: 'baz',
-      },
-      {
-        bar: 'quux',
-      },
-    ],
-  }
+describe('nested structures', () => {
+  test('#1', () => {
+    const input = {
+      foo: [
+        {
+          bar: 'baz',
+        },
+        {
+          bar: 'quux',
+        },
+      ],
+    }
 
-  expect(executeScript(input, '.foo[] | .bar')).toEqual(['baz', 'quux'])
+    expect(executeScript(input, '.foo[] | .bar')).toEqual(['baz', 'quux'])
+  })
+  
+  test('#2', () => {
+    const input = {
+      data: {
+        foo: {
+          entries: [
+            { name: 'foo-a', a: { b: { c: { d: 1 } } } },
+            { name: 'foo-b', a: { b: { c: { d: 2 } } } },
+          ],
+        },
+        bar: {
+          entries: [
+            { name: 'bar-a', a: { b: { c: { d: 3 } } } },
+            { name: 'bar-b', a: { b: { c: { d: 4 } } } },
+          ],
+        },
+      },
+    }
+
+    expect(executeScript(input, '[.data[].entries[] | {name: .name, value: .a.b.c.d}]')).toEqual(
+      [{name:'foo-a',value:1},{name:'foo-b',value:2},{name:'bar-a',value:3},{name:'bar-b',value:4}])
+  })
 })

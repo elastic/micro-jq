@@ -265,14 +265,93 @@ test('pipe commands together', () => {
   expect(parse('.foo | .bar')).toMatchInlineSnapshot(`
 Array [
   Object {
-    "key": "foo",
-    "op": "pick",
-    "strict": true,
+    "in": Array [
+      Object {
+        "key": "foo",
+        "op": "pick",
+        "strict": true,
+      },
+    ],
+    "op": "pipe",
+    "out": Array [
+      Object {
+        "key": "bar",
+        "op": "pick",
+        "strict": true,
+      },
+    ],
   },
+]
+`)
+})
+
+test('multiple pipe', () => {
+  expect(parse('.foo | .bar | .baz')).toMatchInlineSnapshot(`
+Array [
   Object {
-    "key": "bar",
-    "op": "pick",
-    "strict": true,
+    "in": Array [
+      Object {
+        "in": Array [
+          Object {
+            "key": "foo",
+            "op": "pick",
+            "strict": true,
+          },
+        ],
+        "op": "pipe",
+        "out": Array [
+          Object {
+            "key": "bar",
+            "op": "pick",
+            "strict": true,
+          },
+        ],
+      },
+    ],
+    "op": "pipe",
+    "out": Array [
+      Object {
+        "key": "baz",
+        "op": "pick",
+        "strict": true,
+      },
+    ],
+  },
+]
+`)
+})
+
+test('pipe into create object', () => {
+  expect(parse('.[] | {foo: .bar}')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "in": Array [
+      Object {
+        "op": "current_context",
+      },
+      Object {
+        "op": "explode",
+        "strict": true,
+      },
+    ],
+    "op": "pipe",
+    "out": Array [
+      Object {
+        "entries": Array [
+          Object {
+            "key": "foo",
+            "value": Array [
+              Object {
+                "key": "bar",
+                "op": "pick",
+                "strict": true,
+              },
+            ],
+          },
+        ],
+        "op": "create_object",
+      },
+    ],
   },
 ]
 `)

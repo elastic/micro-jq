@@ -143,7 +143,11 @@ function peg$parse(input, options) {
 
       peg$c0 = function(head, tail) {
           return tail.reduce(function(result, element) {
-            return result.concat(element[3])
+            return [{
+              op:  'pipe',
+              in:  result,
+              out: Array.isArray(element[3]) ? element[3] : [element[3]],
+            }]
           }, Array.isArray(head) ? head : [head])
         },
       peg$c1 = peg$otherExpectation("whitespace"),
