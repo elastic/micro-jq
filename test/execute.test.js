@@ -16,6 +16,12 @@ describe('literals', () => {
 })
 
 describe('pick values', () => {
+  test('missing', () => {
+    const input = {}
+    const script = '.foo'
+    expect(executeScript(input, script)).toEqual(null)
+  })
+
   test('one deep', () => {
     const input = { foo: 'bar' }
     const script = '.foo'
@@ -299,6 +305,7 @@ describe('nested structures', () => {
           entries: [
             { name: 'bar-a', a: { b: { c: { d: 3 } } } },
             { name: 'bar-b', a: { b: { c: { d: 4 } } } },
+            { name: 'bar-c', a: {} },
           ],
         },
       },
@@ -309,6 +316,7 @@ describe('nested structures', () => {
       { name: 'foo-b', value: 2 },
       { name: 'bar-a', value: 3 },
       { name: 'bar-b', value: 4 },
+      { name: 'bar-c', value: null },
     ])
   })
 

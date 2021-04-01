@@ -67,7 +67,10 @@ function evaluateOpCode_pick(context, opCode) {
       // Skip this value entirely
       return result
     }
-    let picked = each[opCode.key]
+    let picked = null
+    if (each && each[opCode.key]) {
+      picked = each[opCode.key]
+    }
     result.push(picked)
     return result
   }, [])
