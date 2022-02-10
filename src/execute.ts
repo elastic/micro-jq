@@ -1,90 +1,27 @@
 // @ts-ignore
 import { parse } from './parser'
+import {
+  Context,
+  Exploder,
+  ExploderCallback,
+  JSONArray,
+  JSONObject,
+  JSONValue,
+  OpCode,
+  OpCreateArray,
+  OpCreateObject,
+  OpExplode,
+  OpIndex,
+  OpPick,
+  OpPipe,
+  OpSlice
+} from './types';
 
 export default function executeScript(input: string, script: string) {
   const opCodes = parse(script)
 
   return evaluateOpCodes([input], opCodes)
 }
-
-type Primitive = boolean | null | number | string
-
-type JSONValue = Primitive | JSONObject | JSONArray
-
-interface JSONObject {
-  [key: string]: JSONValue
-}
-
-type JSONArray = Array<JSONValue>
-
-type Context = JSONValue[]
-
-interface OpCreateArray {
-  op: 'create_array'
-  values: OpCode[][]
-}
-
-interface OpCreateObject {
-  op: 'create_object'
-  entries: Array<{ key: string; value: OpCode[] }>
-}
-
-interface OpCurrentContext {
-  op: 'current_context'
-}
-
-interface OpExplode {
-  op: 'explode'
-  strict: boolean
-}
-
-interface OpIndex {
-  op: 'index'
-  index: number
-  strict: boolean
-}
-
-interface OpLiteral {
-  op: 'literal'
-  value: string | number | null
-}
-
-interface OpPick {
-  op: 'pick'
-  key: string
-  strict: boolean
-}
-
-interface OpPipe {
-  op: 'pipe'
-  in: OpCode[]
-  out: OpCode[]
-}
-
-interface OpSlice {
-  op: 'slice'
-  start: number | undefined
-  end: number | undefined
-  strict: boolean
-}
-
-type OpCode =
-  | OpCreateArray
-  | OpCreateObject
-  | OpCurrentContext
-  | OpExplode
-  | OpIndex
-  | OpLiteral
-  | OpPick
-  | OpPipe
-  | OpSlice
-
-interface Exploder {
-  exploded: boolean
-  length: number
-}
-
-type ExploderCallback = (length: number) => void
 
 function evaluateOpCodes(
   context: Context,
