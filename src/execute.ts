@@ -25,11 +25,9 @@ export default function executeScript(input: JSONValue, script: string) {
 
 function evaluateOpCodes(
   context: Context,
-  opCodeOrCodes: OpCode | OpCode[],
+  opCodes: OpCode[],
   callback?: ExploderCallback
 ): JSONValue {
-  const opCodes: OpCode[] = Array.isArray(opCodeOrCodes) ? opCodeOrCodes : [opCodeOrCodes]
-
   do {
     const opCode = opCodes.shift()
 
