@@ -2,7 +2,7 @@
   "name": "@elastic/micro-jq",
   "version": "1.4.3",
   "description": "Small implementation of jq",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "license": "Apache-2.0",
   "bin": "./dist/cli.js",
   "scripts": {
