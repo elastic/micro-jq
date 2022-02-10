@@ -17,7 +17,7 @@ import {
   OpSlice,
 } from './types'
 
-export default function executeScript(input: string, script: string) {
+export default function executeScript(input: JSONValue, script: string) {
   const opCodes = parse(script)
 
   return evaluateOpCodes([input], opCodes)
@@ -91,7 +91,7 @@ function evaluateOpCode_pick(context: Context, opCode: OpPick): Context {
       // Skip this value entirely
       return result
     }
-    let picked = null
+    let picked: JSONValue = null
     if (each != null && each[opCode.key]) {
       picked = each[opCode.key]
     }
@@ -263,16 +263,24 @@ function evaluateOpCode_pipe(
   if (!exploder.exploded) {
     result = evaluateOpCodes([result], [...opCode.out])
   } else {
+    let explodedResult: JSONValue[]
     switch (exploder.length) {
       case 0:
-        context = []
+        explodedResult = []
         break
 
       case 1:
-        context = [context]
+        explodedResult = [result]
+        break
+
+      default:
+        explodedResult = result as JSONValue[]
         break
     }
-    result = context.map((each) => evaluateOpCodes([each], [...opCode.out]))
+    result =
+      explodedResult == null
+        ? null
+        : explodedResult.map((each) => evaluateOpCodes([each], [...opCode.out]))
   }
   return Array.isArray(result) ? result : [result]
 }

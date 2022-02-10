@@ -1,4 +1,4 @@
-const { parse } = require('../src/parser')
+import { parse } from '../src'
 
 test('current context', () => {
   expect(parse('.')).toMatchInlineSnapshot(`

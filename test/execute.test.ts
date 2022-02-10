@@ -1,4 +1,5 @@
-const executeScript = require('../src/execute')
+import { executeScript } from '../src'
+import { JSONObject } from '../src/types'
 
 describe('literals', () => {
   test('number', () => {
@@ -293,7 +294,7 @@ describe('nested structures', () => {
   })
 
   test('#2', () => {
-    const input = {
+    const input: JSONObject = {
       data: {
         foo: {
           entries: [
