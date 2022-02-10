@@ -14,8 +14,8 @@ import {
   OpIndex,
   OpPick,
   OpPipe,
-  OpSlice
-} from './types';
+  OpSlice,
+} from './types'
 
 export default function executeScript(input: string, script: string) {
   const opCodes = parse(script)
