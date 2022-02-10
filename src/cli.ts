@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-const fs = require('fs')
-const executeScript = require('./execute')
+import fs from 'fs';
+import executeScript from './execute';
 
 const script = process.argv[2] || '.'
 

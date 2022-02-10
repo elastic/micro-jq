@@ -1,4 +1,5 @@
 ---
+# set:ft=yaml:
 
 env:
   browser: true
@@ -7,6 +8,7 @@ env:
   node: true
 
 plugins:
+  - "@typescript-eslint"
   - jest
   - prettier
 
@@ -14,6 +16,9 @@ extends:
   - eslint:recommended
   - plugin:jest/recommended
   - plugin:prettier/recommended
+  - plugin:@typescript-eslint/recommended
+
+parser: "@typescript-eslint/parser"
 
 parserOptions:
   ecmaVersion: 2018
@@ -47,3 +52,5 @@ rules:
 
   prettier/prettier:
   - error
+
+  "@typescript-eslint/ban-ts-comment": 'off'
