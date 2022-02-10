@@ -145,7 +145,7 @@ function evaluateOpCodes(
 }
 
 function evaluateOpCode_pick(context: Context, opCode: OpPick): Context {
-  return context.reduce((result, each) => {
+  return context.reduce((result: JSONValue[], each: JSONValue) => {
     if (each != null && typeof each !== 'object') {
       if (opCode.strict) {
         throw new Error(`Cannot index ${typeof each} with ${opCode.key}`)
@@ -153,17 +153,17 @@ function evaluateOpCode_pick(context: Context, opCode: OpPick): Context {
       // Skip this value entirely
       return result
     }
-    let picked = null
+    let picked: JSONValue = null
     if (each && each[opCode.key]) {
       picked = each[opCode.key]
     }
     result.push(picked)
     return result
-  }, [])
+  }, [] as JSONValue[])
 }
 
 function evaluateOpCode_index(context: Context, opCode: OpIndex): Context {
-  return context.reduce((result, each) => {
+  return context.reduce((result: JSONValue[], each: JSONValue) => {
     if (!Array.isArray(each)) {
       if (opCode.strict) {
         throw new Error('Can only index into arrays')
@@ -180,7 +180,7 @@ function evaluateOpCode_index(context: Context, opCode: OpIndex): Context {
     }
     result.push(indexed)
     return result
-  }, [])
+  }, [] as JSONValue[])
 }
 
 function evaluateOpCode_slice(context: Context, opCode: OpSlice): Context {

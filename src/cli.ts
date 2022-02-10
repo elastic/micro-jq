@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
-import fs from 'fs';
-import executeScript from './execute';
+import { readFileSync } from 'fs'
+import executeScript from './execute'
 
 const script = process.argv[2] || '.'
 
-const input = JSON.parse(fs.readFileSync(0, 'utf8'))
+const input = JSON.parse(readFileSync(0, 'utf8'))
 
 const result = executeScript(input, script)
 

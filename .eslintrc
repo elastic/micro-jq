@@ -23,6 +23,9 @@ parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaVersion: 2018
 
+ignorePatterns:
+  - "src/parser.ts"
+
 rules:
   indent:
   - error

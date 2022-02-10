@@ -1,14 +1,14 @@
-import executeScript from './execute';
-import { parse } from './parser';
+import executeScript from './execute'
+import { parse } from './parser'
 
 export function checkScript(script: string): boolean {
   try {
     parse(script)
-    return true;
+    return true
   } catch (e) {
-    return false;
+    return false
   }
 }
 
-export { default as executeScript } from './execute';
-export { parse } from './parser';
+export { default as executeScript } from './execute'
+export { parse } from './parser'

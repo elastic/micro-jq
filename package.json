@@ -6,8 +6,8 @@
   "license": "Apache-2.0",
   "bin": "./dist/cli.js",
   "scripts": {
-    "build": "peggy --plugin ./node_modules/ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs",
-    "lint": "eslint .",
+    "build": "peggy --plugin ./node_modules/ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsc --outdir dist src/*.ts",
+    "lint": "eslint --cache src",
     "test": "yarn lint && yarn build && jest"
   },
   "devDependencies": {
