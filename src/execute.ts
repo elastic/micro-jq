@@ -1,3 +1,4 @@
+// @ts-ignore
 import { parse } from './parser'
 
 export default function executeScript(input: string, script: string) {
@@ -145,25 +146,25 @@ function evaluateOpCodes(
 }
 
 function evaluateOpCode_pick(context: Context, opCode: OpPick): Context {
-  return context.reduce((result: JSONValue[], each: JSONValue) => {
-    if (each != null && typeof each !== 'object') {
+  return context.reduce<Context>((result, each) => {
+    if (typeof each !== 'object' || Array.isArray(each)) {
       if (opCode.strict) {
         throw new Error(`Cannot index ${typeof each} with ${opCode.key}`)
       }
       // Skip this value entirely
       return result
     }
-    let picked: JSONValue = null
-    if (each && each[opCode.key]) {
+    let picked = null
+    if (each != null && each[opCode.key]) {
       picked = each[opCode.key]
     }
     result.push(picked)
     return result
-  }, [] as JSONValue[])
+  }, [])
 }
 
 function evaluateOpCode_index(context: Context, opCode: OpIndex): Context {
-  return context.reduce((result: JSONValue[], each: JSONValue) => {
+  return context.reduce<Context>((result, each) => {
     if (!Array.isArray(each)) {
       if (opCode.strict) {
         throw new Error('Can only index into arrays')
@@ -180,22 +181,27 @@ function evaluateOpCode_index(context: Context, opCode: OpIndex): Context {
     }
     result.push(indexed)
     return result
-  }, [] as JSONValue[])
+  }, [])
 }
 
 function evaluateOpCode_slice(context: Context, opCode: OpSlice): Context {
-  return context.reduce((result, each) => {
-    if ('undefined' === typeof each.slice) {
+  return context.reduce<Context>((result, each) => {
+    if ('string' !== typeof each && Array.isArray(each) == false) {
       if (opCode.strict) {
         throw new Error('Cannot slice ' + typeof each)
       }
       return result
+    } else {
+      if (undefined === opCode.start && undefined === opCode.end) {
+        throw new Error('Cannot slice with no offsets')
+      }
+      if (each == null) {
+        result.push(null)
+      } else {
+        result.push((each as string | JSONArray).slice(opCode.start, opCode.end))
+      }
+      return result
     }
-    if (undefined === opCode.start && undefined === opCode.end) {
-      throw new Error('Cannot slice with no offsets')
-    }
-    result.push(each.slice(opCode.start, opCode.end))
-    return result
   }, [])
 }
 
@@ -204,11 +210,11 @@ function evaluateOpCode_explode(
   opCode: OpExplode,
   callback?: ExploderCallback
 ): Context {
-  context = context.reduce((result, each) => {
+  context = context.reduce<Context>((result, each) => {
     if (Array.isArray(each)) {
-      return result!.concat(each)
+      return result.concat(each)
     } else if (typeof each === 'object' && each != null) {
-      return result!.concat(Object.values(each))
+      return result.concat(Object.values(each))
     }
     if (opCode.strict) {
       // jq throws an error specifically for `null`, so let's
@@ -217,7 +223,7 @@ function evaluateOpCode_explode(
       throw new Error('Cannot iterate over ' + type)
     }
     return result
-  }, [] as NonNullable<Context>)
+  }, [])
   if (callback) {
     callback(context.length)
   }
@@ -250,7 +256,7 @@ function evaluateOpCode_create_array(context: Context, opCode: OpCreateArray): C
       }
 
       return result
-    }, [] as JSONValue[]),
+    }, [] as Context),
   ]
 }
 
@@ -280,25 +286,26 @@ function evaluateOpCode_create_object(
           break
 
         default:
-          result[each.key] = values as JSONValue[]
+          result[each.key] = values as Context
           break
       }
     }
     return result
-  }, {} as { [key: string]: JSONValue[] })
+  }, {} as { [key: string]: Context })
 
-  const ops: [string, JSONValue[]][] = Object.entries(jsonObject)
+  const ops: [string, Context][] = Object.entries(jsonObject)
 
   return evaluateOpCode_create_object_build({} as JSONObject, ops)
 }
 
-function evaluateOpCode_create_object_build(
-  current: JSONObject,
-  ops: Array<[string, JSONValue[]]>
-) {
-  let result: JSONValue[] = []
-  const [key, values] = ops.shift()!
-  values!.forEach((value) => {
+function evaluateOpCode_create_object_build(current: JSONObject, ops: Array<[string, Context]>) {
+  let result: Context = []
+  const op = ops.shift()
+  if (op == null) {
+    throw new Error('Unexpectedly ran out of ops')
+  }
+  const [key, values] = op
+  values.forEach((value) => {
     current[key] = value
     if (ops.length > 0) {
       result = result.concat(evaluateOpCode_create_object_build({ ...current }, [...ops]))

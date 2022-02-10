@@ -1,4 +1,3 @@
-import executeScript from './execute'
 import { parse } from './parser'
 
 export function checkScript(script: string): boolean {
