@@ -1,5 +1,4 @@
 import { executeScript } from '../src'
-import { JSONObject } from '../src/types'
 
 describe('literals', () => {
   test('number', () => {
@@ -294,7 +293,7 @@ describe('nested structures', () => {
   })
 
   test('#2', () => {
-    const input: JSONObject = {
+    const input = {
       data: {
         foo: {
           entries: [

@@ -1,11 +1,12 @@
-type Primitive = boolean | null | number | string
-export type JSONValue = Primitive | JSONObject | JSONArray
+export type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined // not a JSON type, but included for interoperability with defined types that allow undefined
+  | JSONValue[]
+  | { [key: string]: JSONValue }
 
-export interface JSONObject {
-  [key: string]: JSONValue
-}
-
-export type JSONArray = Array<JSONValue>
 export type Context = JSONValue[]
 
 export interface OpCreateArray {

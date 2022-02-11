@@ -4,8 +4,6 @@ import {
   Context,
   Exploder,
   ExploderCallback,
-  JSONArray,
-  JSONObject,
   JSONValue,
   OpCode,
   OpCreateArray,
@@ -133,7 +131,7 @@ function evaluateOpCode_slice(context: Context, opCode: OpSlice): Context {
       if (each == null) {
         result.push(null)
       } else {
-        result.push((each as string | JSONArray).slice(opCode.start, opCode.end))
+        result.push((each as string | JSONValue[]).slice(opCode.start, opCode.end))
       }
       return result
     }
@@ -230,10 +228,13 @@ function evaluateOpCode_create_object(
 
   const ops: [string, Context][] = Object.entries(jsonObject)
 
-  return evaluateOpCode_create_object_build({} as JSONObject, ops)
+  return evaluateOpCode_create_object_build({} as { [key: string]: JSONValue }, ops)
 }
 
-function evaluateOpCode_create_object_build(current: JSONObject, ops: Array<[string, Context]>) {
+function evaluateOpCode_create_object_build(
+  current: { [key: string]: JSONValue },
+  ops: Array<[string, Context]>
+) {
   let result: Context = []
   const op = ops.shift()
   if (op == null) {
