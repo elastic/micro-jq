@@ -1,3 +1,13 @@
+## [`1.5.0`](https://github.com/elastic/micro-jq/tree/v1.5.0)
+
+- Convert project to TypeScript
+- Switch to `peggy` instead of PegJS
+- Update dependencies
+
+## [`1.4.3`](https://github.com/elastic/micro-jq/tree/v1.4.3)
+
+- Update dependencies
+
 ## [`1.4.2`](https://github.com/elastic/micro-jq/tree/v1.4.2)
 
 - Just a release to Fix up the out-of-date changelog
