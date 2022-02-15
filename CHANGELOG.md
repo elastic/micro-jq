@@ -1,4 +1,4 @@
-## [`1.6.0`](https://github.com/elastic/micro-jq/tree/v1.6.0)
+## [`1.6.1`](https://github.com/elastic/micro-jq/tree/v1.6.1)
 
 - Convert project to TypeScript
 - Switch to `peggy` instead of PegJS
