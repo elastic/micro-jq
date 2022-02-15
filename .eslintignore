@@ -1,2 +1,4 @@
 node_modules
-src/parser.js
+package.json
+src/parser.ts
+dist

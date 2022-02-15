@@ -1,4 +1,4 @@
-const executeScript = require('../src/execute')
+import { executeScript } from '../src'
 
 describe('literals', () => {
   test('number', () => {

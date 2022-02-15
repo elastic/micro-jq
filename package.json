@@ -2,21 +2,39 @@
   "name": "@elastic/micro-jq",
   "version": "1.4.3",
   "description": "Small implementation of jq",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "license": "Apache-2.0",
-  "bin": "./src/cli.js",
+  "bin": "./dist/cli.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "pegjs -o ./src/parser.js ./src/parser.pegjs",
-    "lint": "eslint .",
+    "build": "peggy --plugin ./node_modules/ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsc --declaration --outdir dist src/*.ts",
+    "lint": "eslint --cache src",
     "test": "yarn lint && yarn build && jest"
   },
   "devDependencies": {
-    "eslint": "^7.31.0",
+    "@types/jest": "^27.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-jest": "^24.4.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "jest": "^27.0.6",
-    "pegjs": "^0.10.0",
-    "prettier": "^2.3.2"
+    "eslint-plugin-jest": "^26.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.5.1",
+    "peggy": "^1.2.0",
+    "prettier": "^2.5.1",
+    "ts-jest": "^27.1.3",
+    "ts-pegjs": "^1.2.1",
+    "typescript": "^4.5.5"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "globals": {
+      "ts-jest": {
+        "tsconfig": {
+          "noImplicitAny": false
+        }
+      }
+    }
   }
 }
