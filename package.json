@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "license": "Apache-2.0",
   "bin": "./dist/cli.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "peggy --plugin ./node_modules/ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsc --declaration --outdir dist src/*.ts",
     "lint": "eslint --cache src",
@@ -12,9 +13,9 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
-    "@typescript-eslint/eslint-plugin": "^5.11.0",
-    "@typescript-eslint/parser": "^5.11.0",
-    "eslint": "^8.8.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^26.1.0",
     "eslint-plugin-prettier": "^4.0.0",
