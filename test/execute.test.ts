@@ -119,6 +119,12 @@ describe('pick values', () => {
     const script = '.foo[1].bar'
     expect(executeScript(input, script)).toEqual(2)
   })
+
+  test('pick 0 value', () => {
+    const input = { foo: 0 }
+    const script = '.foo'
+    expect(executeScript(input, script)).toEqual(0)
+  })
 })
 
 describe('lazy operator', () => {

@@ -87,10 +87,7 @@ function evaluateOpCode_pick(context: Context, opCode: OpPick): Context {
       // Skip this value entirely
       return result
     }
-    let picked: JSONValue = null
-    if (each != null && each[opCode.key]) {
-      picked = each[opCode.key]
-    }
+    const picked = each?.[opCode.key] ?? null
     result.push(picked)
     return result
   }, [])
