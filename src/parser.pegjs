@@ -109,8 +109,8 @@ Number
   = negative:"-"? number:[0-9]+ { return toNumber(number, negative) }
 
 String
-  = "'" string:[^']+ "'" { return string.join('') }
-  / '"' string:[^"]+ '"' { return string.join('') }
+  = "'" string:[^']* "'" { return string.join('') }
+  / '"' string:[^"]* '"' { return string.join('') }
 
 CreateArray
   = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {

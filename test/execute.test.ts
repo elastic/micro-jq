@@ -8,6 +8,7 @@ describe('literals', () => {
   test('strings', () => {
     expect(executeScript(null, '"foo"')).toEqual('foo')
     expect(executeScript(null, "'foo'")).toEqual('foo')
+    expect(executeScript(null, '""')).toEqual('')
   })
 
   test('null', () => {
@@ -124,6 +125,12 @@ describe('pick values', () => {
     const input = { foo: 0 }
     const script = '.foo'
     expect(executeScript(input, script)).toEqual(0)
+  })
+
+  test('pick empty string value', () => {
+    const input = { foo: '' }
+    const script = '.foo'
+    expect(executeScript(input, script)).toEqual('')
   })
 })
 
