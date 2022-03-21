@@ -104,6 +104,7 @@ Literal
   / "null" { return literal(null) }
   / "undefined" { return literal(undefined) }
   / string:String { return literal(string) }
+  / boolean:Boolean { return literal(boolean) }
 
 Number
   = negative:"-"? number:[0-9]+ { return toNumber(number, negative) }
@@ -111,6 +112,10 @@ Number
 String
   = "'" string:[^']* "'" { return string.join('') }
   / '"' string:[^"]* '"' { return string.join('') }
+
+Boolean
+  = 'true' { return true }
+  / 'false' { return false }
 
 CreateArray
   = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {
