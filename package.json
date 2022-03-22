@@ -1,6 +1,6 @@
 {
   "name": "@elastic/micro-jq",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "Small implementation of jq",
   "main": "./dist/index.js",
   "license": "Apache-2.0",

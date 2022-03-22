@@ -1,3 +1,7 @@
+## [`1.7.0`](https://github.com/elastic/micro-jq/tree/v1.7.0)
+
+- Improve handling of bools, empty strings and falsy values
+
 ## [`1.6.1`](https://github.com/elastic/micro-jq/tree/v1.6.1)
 
 - Convert project to TypeScript
