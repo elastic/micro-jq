@@ -8,10 +8,16 @@ describe('literals', () => {
   test('strings', () => {
     expect(executeScript(null, '"foo"')).toEqual('foo')
     expect(executeScript(null, "'foo'")).toEqual('foo')
+    expect(executeScript(null, '""')).toEqual('')
   })
 
   test('null', () => {
     expect(executeScript(null, 'null')).toEqual(null)
+  })
+
+  test('bools', () => {
+    expect(executeScript(null, 'false')).toEqual(false)
+    expect(executeScript(null, 'true')).toEqual(true)
   })
 })
 
@@ -118,6 +124,24 @@ describe('pick values', () => {
     const input = { foo: [{ bar: 1 }, { bar: 2 }] }
     const script = '.foo[1].bar'
     expect(executeScript(input, script)).toEqual(2)
+  })
+
+  test('pick 0 value', () => {
+    const input = { foo: 0 }
+    const script = '.foo'
+    expect(executeScript(input, script)).toEqual(0)
+  })
+
+  test('pick empty string value', () => {
+    const input = { foo: '' }
+    const script = '.foo'
+    expect(executeScript(input, script)).toEqual('')
+  })
+
+  test('pick false value', () => {
+    const input = { foo: false }
+    const script = '.foo'
+    expect(executeScript(input, script)).toEqual(false)
   })
 })
 
