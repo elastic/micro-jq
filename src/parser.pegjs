@@ -43,6 +43,10 @@ Traversal
   / Pick
   / Context
 
+Functions
+  = StringArgFunctions
+  / NoArgFunctions
+
 Index
   = "[" _ index:Number _ "]" strict:"?"? {
     return {
@@ -93,11 +97,42 @@ Context
     }
   }
 
+NoArgFunctions
+  = name:NoArgFunctionsNames _ {
+    return {
+      op: 'function',
+      name
+    }
+  }
+
+NoArgFunctionsNames
+  = 'trim'
+  / 'ltrim'
+  / 'rtrim'
+
+StringArgFunctions
+  = name:StringArgFunctionNames _ "(" _ value:String _ ")" {
+    return {
+      op: 'function',
+      name,
+      value
+    }
+  }
+
+StringArgFunctionNames
+  = 'startswith'
+  / 'endswith'
+  / 'ltrimstr'
+  / 'rtrimstr'
+  / 'split'
+  / 'join'
+
 Operation
   = Literal      // Must be bare
   / CreateArray  // Must be bare
   / CreateObject // Must be bare
   / Filter       // Must have context
+  / Functions    // Must have context
 
 Literal
   = number:Number { return literal(number) }
