@@ -145,6 +145,38 @@ describe('pick values', () => {
   })
 })
 
+describe('functions', () => {
+  test('trim', () => {
+    expect(executeScript('  a-b  ', 'trim')).toEqual('a-b')
+  })
+  test('ltrim', () => {
+    expect(executeScript('  a-b  ', 'ltrim')).toEqual('a-b  ')
+  })
+  test('rtrim', () => {
+    expect(executeScript('  a-b  ', 'rtrim')).toEqual('  a-b')
+  })
+  test('startswith', () => {
+    expect(executeScript('a-b--', 'startswith("a")')).toEqual(true)
+    expect(executeScript('a-b--', 'startswith("-")')).toEqual(false)
+  })
+  test('endswith', () => {
+    expect(executeScript('a-b--', 'endswith("-")')).toEqual(true)
+    expect(executeScript('a-b--', 'endswith("a")')).toEqual(false)
+  })
+  test('ltrimstr', () => {
+    expect(executeScript('--a-b--', 'ltrimstr("-")')).toEqual('-a-b--')
+  })
+  test('rtrimstr', () => {
+    expect(executeScript('--a-b--', 'rtrimstr("-")')).toEqual('--a-b-')
+  })
+  test('split', () => {
+    expect(executeScript('a-b-c', 'split("-")')).toEqual(['a', 'b', 'c'])
+  })
+  test('join', () => {
+    expect(executeScript(['a', 'b', 'c'], 'join("-")')).toEqual('a-b-c')
+  })
+})
+
 describe('lazy operator', () => {
   test('cannot pick a key from a number', () => {
     const input = 1

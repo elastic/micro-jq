@@ -571,3 +571,102 @@ Array [
 `)
   })
 })
+
+describe('functions', () => {
+  test('trim', () => {
+    expect(parse('trim')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "trim",
+    "op": "function",
+  },
+]
+`)
+  })
+  test('ltrim', () => {
+    expect(parse('ltrim')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "ltrim",
+    "op": "function",
+  },
+]
+`)
+  })
+  test('rtrim', () => {
+    expect(parse('rtrim')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "rtrim",
+    "op": "function",
+  },
+]
+`)
+  })
+  test('startswith', () => {
+    expect(parse('startswith("foo")')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "startswith",
+    "op": "function",
+    "value": "foo",
+  },
+]
+`)
+  })
+  test('endswith', () => {
+    expect(parse('endswith("foo")')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "endswith",
+    "op": "function",
+    "value": "foo",
+  },
+]
+`)
+  })
+  test('ltrimstr', () => {
+    expect(parse('ltrimstr("foo")')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "ltrimstr",
+    "op": "function",
+    "value": "foo",
+  },
+]
+`)
+  })
+  test('rtrimstr', () => {
+    expect(parse('rtrimstr("foo")')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "rtrimstr",
+    "op": "function",
+    "value": "foo",
+  },
+]
+`)
+  })
+  test('split', () => {
+    expect(parse('split("foo")')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "split",
+    "op": "function",
+    "value": "foo",
+  },
+]
+`)
+  })
+  test('join', () => {
+    expect(parse('join("foo")')).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "name": "join",
+    "op": "function",
+    "value": "foo",
+  },
+]
+`)
+  })
+})

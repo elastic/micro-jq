@@ -1,3 +1,4 @@
+import { evaluateOpCode_function } from './opcode-function'
 // @ts-ignore
 import { parse } from './parser'
 import {
@@ -69,8 +70,12 @@ function evaluateOpCodes(
         context = evaluateOpCode_pipe(context, opCode, callback)
         break
 
+      case 'function':
+        context = evaluateOpCode_function(context, opCode)
+        break
+
       default:
-        // @ts-ignore shouldn't happen
+        // @ts-expect-error if this doesn't error, then some opcode isn't handled
         throw new Error('Unknown op code: ' + opCode.op)
     }
   } while (opCodes.length > 0)
