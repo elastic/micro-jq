@@ -58,6 +58,30 @@ export interface OpSlice {
   strict: boolean
 }
 
+export type StringArgFunctionName =
+  | 'startswith'
+  | 'endswith'
+  | 'ltrimstr'
+  | 'rtrimstr'
+  | 'split'
+  | 'join'
+
+export type NoArgFunctioName = 'trim' | 'ltrim' | 'rtrim'
+
+export type AnyArgFunctionName = StringArgFunctionName | NoArgFunctioName
+
+export interface OpFunction {
+  op: 'function'
+  name: AnyArgFunctionName
+  value?: string
+}
+
+export interface OpStringArgFunction<Name extends StringArgFunctionName = StringArgFunctionName>
+  extends OpFunction {
+  name: Name
+  value: string
+}
+
 export type OpCode =
   | OpCreateArray
   | OpCreateObject
@@ -68,6 +92,7 @@ export type OpCode =
   | OpPick
   | OpPipe
   | OpSlice
+  | OpFunction
 
 export interface Exploder {
   exploded: boolean
