@@ -1,3 +1,30 @@
+## [`1.8.0`](https://github.com/elastic/micro-jq/tree/v1.8.0)
+
+Adds support for calling zero argument and single argument functions, along
+with support for the following functions.
+
+Whitespace removal e.g. `.foo | trim`:
+
+ - `trim`
+ - `ltrim`
+ - `rtrim`
+
+Trim specific characters e.g. `.foo | ltrimstr("f")`
+
+ - `ltrimstr`
+ - `rtrimstr`
+
+Filters e.g. `.foo | startswith("f")`
+
+ - `startswith`
+ - `endswith`
+
+`split` - breaks a string into an array using the specified delimiter e.g.
+`.aStringField | split(",")`
+
+`join` - turn an array into a string by concatenating using the specified
+delimiter e.g. `.anArrayField | join(",")`
+
 ## [`1.7.0`](https://github.com/elastic/micro-jq/tree/v1.7.0)
 
 - Improve handling of bools, empty strings and falsy values
