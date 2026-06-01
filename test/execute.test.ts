@@ -390,3 +390,251 @@ describe('nested structures', () => {
     ).toEqual([{ name: 'foo-a', values: [1, 2] }])
   })
 })
+
+describe('comparison operators', () => {
+  test('== on equal values', () => {
+    expect(executeScript({ type: 'keyword' }, '.type == "keyword"')).toEqual(true)
+  })
+
+  test('== on unequal values', () => {
+    expect(executeScript({ type: 'text' }, '.type == "keyword"')).toEqual(false)
+  })
+
+  test('!= on unequal values', () => {
+    expect(executeScript({ type: 'text' }, '.type != "keyword"')).toEqual(true)
+  })
+
+  test('!= on equal values', () => {
+    expect(executeScript({ type: 'keyword' }, '.type != "keyword"')).toEqual(false)
+  })
+
+  test('< on numbers', () => {
+    expect(executeScript({ n: 3 }, '.n < 5')).toEqual(true)
+    expect(executeScript({ n: 5 }, '.n < 5')).toEqual(false)
+  })
+
+  test('> on numbers', () => {
+    expect(executeScript({ n: 6 }, '.n > 5')).toEqual(true)
+    expect(executeScript({ n: 4 }, '.n > 5')).toEqual(false)
+  })
+
+  test('<= on numbers', () => {
+    expect(executeScript({ n: 5 }, '.n <= 5')).toEqual(true)
+    expect(executeScript({ n: 6 }, '.n <= 5')).toEqual(false)
+  })
+
+  test('>= on numbers', () => {
+    expect(executeScript({ n: 5 }, '.n >= 5')).toEqual(true)
+    expect(executeScript({ n: 4 }, '.n >= 5')).toEqual(false)
+  })
+
+  test('== on null', () => {
+    expect(executeScript({ a: null }, '.a == null')).toEqual(true)
+  })
+
+  test('== on nested values', () => {
+    expect(executeScript({ a: { b: 'foo' } }, '.a.b == "foo"')).toEqual(true)
+  })
+})
+
+describe('logical operators', () => {
+  test('and — both true', () => {
+    expect(executeScript({ a: 1, b: 2 }, '.a == 1 and .b == 2')).toEqual(true)
+  })
+
+  test('and — one false', () => {
+    expect(executeScript({ a: 1, b: 3 }, '.a == 1 and .b == 2')).toEqual(false)
+  })
+
+  test('or — one true', () => {
+    expect(executeScript({ type: 'text' }, '.type == "keyword" or .type == "text"')).toEqual(true)
+  })
+
+  test('or — both false', () => {
+    expect(executeScript({ type: 'date' }, '.type == "keyword" or .type == "text"')).toEqual(false)
+  })
+
+  test('chained and', () => {
+    expect(executeScript({ a: 1, b: 2, c: 3 }, '.a == 1 and .b == 2 and .c == 3')).toEqual(true)
+    expect(executeScript({ a: 1, b: 2, c: 4 }, '.a == 1 and .b == 2 and .c == 3')).toEqual(false)
+  })
+})
+
+describe('not', () => {
+  test('negates false', () => {
+    expect(executeScript(false, 'not')).toEqual(true)
+  })
+
+  test('negates true', () => {
+    expect(executeScript(true, 'not')).toEqual(false)
+  })
+
+  test('negates null', () => {
+    expect(executeScript(null, 'not')).toEqual(true)
+  })
+
+  test('via pipe', () => {
+    expect(executeScript({ active: false }, '.active | not')).toEqual(true)
+  })
+})
+
+describe('select', () => {
+  test('keeps matching elements', () => {
+    expect(executeScript([1, 2, 3, 4], '.[] | select(. > 2)')).toEqual([3, 4])
+  })
+
+  test('drops non-matching elements', () => {
+    expect(executeScript([1, 2, 3], '.[] | select(. == 99)')).toEqual(undefined)
+  })
+
+  test('with string comparison', () => {
+    const input = [{ type: 'keyword' }, { type: 'text' }, { type: 'keyword' }]
+    expect(executeScript(input, '.[] | select(.type == "keyword") | .type')).toEqual([
+      'keyword',
+      'keyword',
+    ])
+  })
+
+  test('with != comparison', () => {
+    const input = [{ type: 'keyword' }, { type: 'text' }]
+    expect(executeScript(input, '.[] | select(.type != "keyword") | .type')).toEqual('text')
+  })
+
+  test('with and condition', () => {
+    const input = [
+      { type: 'keyword', active: true },
+      { type: 'keyword', active: false },
+      { type: 'text', active: true },
+    ]
+    expect(
+      executeScript(input, '.[] | select(.type == "keyword" and .active == true)')
+    ).toEqual({ type: 'keyword', active: true })
+  })
+
+  test('with or condition', () => {
+    const input = [{ type: 'date' }, { type: 'keyword' }, { type: 'text' }]
+    expect(
+      executeScript(input, '.[] | select(.type == "keyword" or .type == "text") | .type')
+    ).toEqual(['keyword', 'text'])
+  })
+
+  test('errors suppressed — non-matching type is silently dropped', () => {
+    const input = [{ type: 'keyword' }, 'not-an-object']
+    expect(executeScript(input, '.[] | select(.type == "keyword") | .type')).toEqual('keyword')
+  })
+})
+
+describe('keys', () => {
+  test('returns sorted object keys', () => {
+    expect(executeScript({ b: 2, a: 1, c: 3 }, 'keys')).toEqual(['a', 'b', 'c'])
+  })
+
+  test('returns indices for arrays', () => {
+    expect(executeScript(['x', 'y', 'z'], 'keys')).toEqual([0, 1, 2])
+  })
+
+  test('on nested object', () => {
+    expect(executeScript({ foo: { b: 1, a: 2 } }, '.foo | keys')).toEqual(['a', 'b'])
+  })
+
+  test('throws on non-object', () => {
+    expect(() => executeScript(42, 'keys')).toThrow()
+  })
+})
+
+describe('to_entries', () => {
+  test('converts object to key/value pairs', () => {
+    expect(executeScript({ a: 1, b: 2 }, '[to_entries]')).toEqual([
+      { key: 'a', value: 1 },
+      { key: 'b', value: 2 },
+    ])
+  })
+
+  test('converts array to index/value pairs', () => {
+    expect(executeScript(['x', 'y'], '[to_entries]')).toEqual([
+      { key: 0, value: 'x' },
+      { key: 1, value: 'y' },
+    ])
+  })
+
+  test('pipes each entry individually', () => {
+    expect(executeScript({ a: 1, b: 2 }, 'to_entries | .key')).toEqual(['a', 'b'])
+  })
+
+  test('select on entries — filter by value', () => {
+    const input = { a: 'keyword', b: 'text', c: 'keyword' }
+    expect(executeScript(input, 'to_entries | select(.value == "keyword") | .key')).toEqual([
+      'a',
+      'c',
+    ])
+  })
+
+  test('primary use case — find index names by mapping type', () => {
+    const mappings = {
+      'index-1': { mappings: { properties: { status: { type: 'keyword' } } } },
+      'index-2': { mappings: { properties: { status: { type: 'text' } } } },
+      'index-3': { mappings: { properties: { status: { type: 'keyword' } } } },
+    }
+    expect(
+      executeScript(
+        mappings,
+        'to_entries | select(.value.mappings.properties.status.type != "keyword") | .key'
+      )
+    ).toEqual('index-2')
+  })
+
+  test('primary use case — multiple matches', () => {
+    const mappings = {
+      'index-1': { mappings: { properties: { status: { type: 'text' } } } },
+      'index-2': { mappings: { properties: { status: { type: 'text' } } } },
+    }
+    expect(
+      executeScript(
+        mappings,
+        'to_entries | select(.value.mappings.properties.status.type != "keyword") | .key'
+      )
+    ).toEqual(['index-1', 'index-2'])
+  })
+})
+
+describe('from_entries', () => {
+  test('converts key/value pairs back to object', () => {
+    expect(executeScript([{ key: 'a', value: 1 }, { key: 'b', value: 2 }], 'from_entries')).toEqual(
+      { a: 1, b: 2 }
+    )
+  })
+
+  test('accepts name instead of key', () => {
+    expect(executeScript([{ name: 'x', value: 42 }], 'from_entries')).toEqual({ x: 42 })
+  })
+
+  test('round-trips with to_entries', () => {
+    const input = { a: 1, b: 2 }
+    expect(executeScript(input, '[to_entries] | from_entries')).toEqual(input)
+  })
+
+  test('throws on non-array input', () => {
+    expect(() => executeScript({ a: 1 }, 'from_entries')).toThrow()
+  })
+})
+
+describe('recursive descent (..)', () => {
+  test('visits all nodes depth-first and collects optional field', () => {
+    const input = { a: { type: 'keyword' }, b: { c: { type: 'text' } } }
+    // root has no .type → null; {type:'keyword'} → 'keyword'; 'keyword' string → skipped;
+    // {c:{...}} has no .type → null; {type:'text'} → 'text'; 'text' string → skipped
+    expect(executeScript(input, '.. | .type?')).toEqual([null, 'keyword', null, 'text'])
+  })
+
+  test('works on arrays — array itself is skipped by optional pick', () => {
+    const input = [{ type: 'keyword' }, { type: 'text' }]
+    // the array itself has no .type (arrays skipped in non-strict); objects yield their .type
+    expect(executeScript(input, '.. | .type?')).toEqual(['keyword', 'text'])
+  })
+
+  test('collects all values at any depth using array construction', () => {
+    const input = { a: { b: { type: 'date' } }, c: { type: 'keyword' } }
+    const result = executeScript(input, '[.. | .type?]') as string[]
+    expect(result.filter((v) => v !== null)).toEqual(['date', 'keyword'])
+  })
+})
