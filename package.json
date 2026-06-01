@@ -8,6 +8,9 @@
   "engines": {
     "node": ">=20"
   },
+  "repository": {
+    "url": "https://github.com/elastic/micro-jq"
+  },
   "bin": "./dist/cli.js",
   "types": "./dist/index.d.ts",
   "scripts": {
