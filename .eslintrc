@@ -56,4 +56,8 @@ rules:
   prettier/prettier:
   - error
 
+  curly:
+  - error
+  - all
+
   "@typescript-eslint/ban-ts-comment": 'off'

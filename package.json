@@ -15,8 +15,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "peggy --plugin ./node_modules/ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsc --declaration --outdir dist src/*.ts",
-    "lint": "eslint --cache src",
-    "test": "npm run lint && npm run build && jest"
+    "lint": "eslint --cache src test",
+    "lint-fix": "eslint --cache --fix src test",
+    "test": "npm run lint && npm run build && npm exec -- jest"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
