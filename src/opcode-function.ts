@@ -62,9 +62,10 @@ const noArgCallbacks: Record<NoArgFunctioName, (each: JSONValue) => JSONValue> =
         throw new Error('from_entries entry must be an object')
       }
       const e = entry as Record<string, JSONValue>
-      const k = e.key ?? e.name
+      const k = e.key ?? e.Key ?? e.name ?? e.Name
       if (k === undefined || k === null) throw new Error('from_entries entry must have key or name')
-      result[String(k)] = e.value as JSONValue
+      const v = 'value' in e ? e.value : e.Value
+      result[String(k)] = v as JSONValue
     }
     return result
   },

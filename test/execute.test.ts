@@ -428,8 +428,49 @@ describe('comparison operators', () => {
     expect(executeScript({ n: 4 }, '.n >= 5')).toEqual(false)
   })
 
+  test('< on strings (lexicographic)', () => {
+    expect(executeScript({ s: 'apple' }, '.s < "banana"')).toEqual(true)
+    expect(executeScript({ s: 'zebra' }, '.s < "banana"')).toEqual(false)
+  })
+
+  test('> on strings (lexicographic)', () => {
+    expect(executeScript({ s: 'zebra' }, '.s > "apple"')).toEqual(true)
+    expect(executeScript({ s: 'apple' }, '.s > "zebra"')).toEqual(false)
+  })
+
+  test('<= on strings', () => {
+    expect(executeScript({ s: 'apple' }, '.s <= "apple"')).toEqual(true)
+    expect(executeScript({ s: 'banana' }, '.s <= "apple"')).toEqual(false)
+  })
+
+  test('>= on strings', () => {
+    expect(executeScript({ s: 'banana' }, '.s >= "apple"')).toEqual(true)
+    expect(executeScript({ s: 'apple' }, '.s >= "banana"')).toEqual(false)
+  })
+
+  test('== on numbers', () => {
+    expect(executeScript({ n: 42 }, '.n == 42')).toEqual(true)
+    expect(executeScript({ n: 42 }, '.n == 43')).toEqual(false)
+  })
+
+  test('== on booleans', () => {
+    expect(executeScript({ active: true }, '.active == true')).toEqual(true)
+    expect(executeScript({ active: false }, '.active == true')).toEqual(false)
+  })
+
   test('== on null', () => {
     expect(executeScript({ a: null }, '.a == null')).toEqual(true)
+    expect(executeScript({ a: 'something' }, '.a == null')).toEqual(false)
+  })
+
+  test('!= on numbers', () => {
+    expect(executeScript({ n: 5 }, '.n != 3')).toEqual(true)
+    expect(executeScript({ n: 3 }, '.n != 3')).toEqual(false)
+  })
+
+  test('!= on booleans', () => {
+    expect(executeScript({ active: false }, '.active != true')).toEqual(true)
+    expect(executeScript({ active: true }, '.active != true')).toEqual(false)
   })
 
   test('== on nested values', () => {
@@ -606,6 +647,14 @@ describe('from_entries', () => {
 
   test('accepts name instead of key', () => {
     expect(executeScript([{ name: 'x', value: 42 }], 'from_entries')).toEqual({ x: 42 })
+  })
+
+  test('accepts mixed-case Key and Value', () => {
+    expect(executeScript([{ Key: 'a', Value: 1 }], 'from_entries')).toEqual({ a: 1 })
+  })
+
+  test('accepts mixed-case Name and Value', () => {
+    expect(executeScript([{ Name: 'b', Value: 2 }], 'from_entries')).toEqual({ b: 2 })
   })
 
   test('round-trips with to_entries', () => {
