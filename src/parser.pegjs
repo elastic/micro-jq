@@ -17,7 +17,7 @@ Script
   = Expression
 
 Expression
-  = head:Operation tail:(_ Pipe* _ Operation)* {
+  = head:OrExpr tail:(_ Pipe* _ OrExpr)* {
     return tail.reduce(function(result, element) {
       return [{
         op:  'pipe',
@@ -26,6 +26,51 @@ Expression
       }]
     }, Array.isArray(head) ? head : [head])
   }
+
+OrExpr
+  = head:AndExpr tail:(_ 'or' !IdentifierPart _ AndExpr)* {
+    if (tail.length === 0) return head
+    return tail.reduce(function(acc, element) {
+      var right = element[4]
+      return {
+        op: 'or',
+        left: Array.isArray(acc) ? acc : [acc],
+        right: Array.isArray(right) ? right : [right],
+      }
+    }, head)
+  }
+
+AndExpr
+  = head:Comparison tail:(_ 'and' !IdentifierPart _ Comparison)* {
+    if (tail.length === 0) return head
+    return tail.reduce(function(acc, element) {
+      var right = element[4]
+      return {
+        op: 'and',
+        left: Array.isArray(acc) ? acc : [acc],
+        right: Array.isArray(right) ? right : [right],
+      }
+    }, head)
+  }
+
+Comparison
+  = left:Operation _ op:ComparisonOp _ right:Operation {
+    return {
+      op: 'comparison',
+      operator: op,
+      left: Array.isArray(left) ? left : [left],
+      right: Array.isArray(right) ? right : [right],
+    }
+  }
+  / Operation
+
+ComparisonOp
+  = '=='
+  / '!='
+  / '<='
+  / '>='
+  / '<'
+  / '>'
 
 _ "whitespace"
   = [ \t\n\r]*
@@ -40,12 +85,33 @@ Traversal
   = Index
   / Slice
   / Explode
+  / RecursiveDescent
   / Pick
   / Context
 
+RecursiveDescent
+  = ".." {
+    return { op: 'recursive_descent' }
+  }
+
 Functions
-  = StringArgFunctions
+  = SelectFunction
+  / ToEntriesFunction
+  / StringArgFunctions
   / NoArgFunctions
+
+SelectFunction
+  = 'select' _ '(' _ expr:Expression _ ')' {
+    return {
+      op: 'select',
+      condition: Array.isArray(expr) ? expr : [expr],
+    }
+  }
+
+ToEntriesFunction
+  = 'to_entries' _ {
+    return { op: 'to_entries' }
+  }
 
 Index
   = "[" _ index:Number _ "]" strict:"?"? {
@@ -106,9 +172,12 @@ NoArgFunctions
   }
 
 NoArgFunctionsNames
-  = 'trim'
+  = 'from_entries'
+  / 'keys'
+  / 'trim'
   / 'ltrim'
   / 'rtrim'
+  / 'not'
 
 StringArgFunctions
   = name:StringArgFunctionNames _ "(" _ value:String _ ")" {
