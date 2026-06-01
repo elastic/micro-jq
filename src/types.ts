@@ -58,6 +58,34 @@ export interface OpSlice {
   strict: boolean
 }
 
+export type ComparisonOperator = '==' | '!=' | '<' | '>' | '<=' | '>='
+
+export interface OpComparison {
+  op: 'comparison'
+  operator: ComparisonOperator
+  left: OpCode[]
+  right: OpCode[]
+}
+
+export interface OpLogical {
+  op: 'and' | 'or'
+  left: OpCode[]
+  right: OpCode[]
+}
+
+export interface OpSelect {
+  op: 'select'
+  condition: OpCode[]
+}
+
+export interface OpRecursiveDescent {
+  op: 'recursive_descent'
+}
+
+export interface OpToEntries {
+  op: 'to_entries'
+}
+
 export type StringArgFunctionName =
   | 'startswith'
   | 'endswith'
@@ -66,7 +94,7 @@ export type StringArgFunctionName =
   | 'split'
   | 'join'
 
-export type NoArgFunctioName = 'trim' | 'ltrim' | 'rtrim'
+export type NoArgFunctioName = 'trim' | 'ltrim' | 'rtrim' | 'keys' | 'from_entries' | 'not'
 
 export type AnyArgFunctionName = StringArgFunctionName | NoArgFunctioName
 
@@ -83,6 +111,11 @@ export interface OpStringArgFunction<Name extends StringArgFunctionName = String
 }
 
 export type OpCode =
+  | OpComparison
+  | OpLogical
+  | OpSelect
+  | OpRecursiveDescent
+  | OpToEntries
   | OpCreateArray
   | OpCreateObject
   | OpCurrentContext

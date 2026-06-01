@@ -2,17 +2,21 @@ import { evaluateOpCode_function } from './opcode-function'
 // @ts-ignore
 import { parse } from './parser'
 import {
+  ComparisonOperator,
   Context,
   Exploder,
   ExploderCallback,
   JSONValue,
   OpCode,
+  OpComparison,
   OpCreateArray,
   OpCreateObject,
   OpExplode,
   OpIndex,
+  OpLogical,
   OpPick,
   OpPipe,
+  OpSelect,
   OpSlice,
 } from './types'
 
@@ -58,6 +62,14 @@ function evaluateOpCodes(
         context = evaluateOpCode_explode(context, opCode, callback)
         break
 
+      case 'recursive_descent':
+        context = evaluateOpCode_recursive_descent(context, callback)
+        break
+
+      case 'to_entries':
+        context = evaluateOpCode_to_entries(context, callback)
+        break
+
       case 'create_array':
         context = evaluateOpCode_create_array(context, opCode)
         break
@@ -72,6 +84,19 @@ function evaluateOpCodes(
 
       case 'function':
         context = evaluateOpCode_function(context, opCode)
+        break
+
+      case 'comparison':
+        context = evaluateOpCode_comparison(context, opCode)
+        break
+
+      case 'and':
+      case 'or':
+        context = evaluateOpCode_logical(context, opCode)
+        break
+
+      case 'select':
+        context = evaluateOpCode_select(context, opCode)
         break
 
       default:
@@ -163,6 +188,95 @@ function evaluateOpCode_explode(
     callback(context.length)
   }
   return context
+}
+
+function evaluateOpCode_recursive_descent(context: Context, callback?: ExploderCallback): Context {
+  const result: Context = []
+
+  function walk(value: JSONValue) {
+    result.push(value)
+    if (Array.isArray(value)) {
+      value.forEach(walk)
+    } else if (typeof value === 'object' && value !== null) {
+      Object.values(value).forEach(walk)
+    }
+  }
+
+  context.forEach(walk)
+
+  if (callback) {
+    callback(result.length)
+  }
+  return result
+}
+
+function evaluateOpCode_to_entries(context: Context, callback?: ExploderCallback): Context {
+  const result: Context = []
+  for (const each of context) {
+    if (Array.isArray(each)) {
+      for (let i = 0; i < (each as JSONValue[]).length; i++) {
+        result.push({ key: i as unknown as JSONValue, value: (each as JSONValue[])[i] })
+      }
+    } else if (typeof each === 'object' && each !== null) {
+      for (const [k, v] of Object.entries(each as Record<string, JSONValue>)) {
+        result.push({ key: k as JSONValue, value: v })
+      }
+    } else {
+      throw new Error(`Cannot get entries of ${typeof each}`)
+    }
+  }
+  if (callback) callback(result.length)
+  return result
+}
+
+function evaluateOpCode_comparison(context: Context, opCode: OpComparison): Context {
+  return context.map((each) => {
+    const left = evaluateOpCodes([each], [...opCode.left])
+    const right = evaluateOpCodes([each], [...opCode.right])
+    return compareValues(left, right, opCode.operator)
+  })
+}
+
+function compareValues(left: JSONValue, right: JSONValue, operator: ComparisonOperator): boolean {
+  switch (operator) {
+    case '==':
+      return deepEqual(left, right)
+    case '!=':
+      return !deepEqual(left, right)
+    case '<':
+      return (left as number) < (right as number)
+    case '>':
+      return (left as number) > (right as number)
+    case '<=':
+      return (left as number) <= (right as number)
+    case '>=':
+      return (left as number) >= (right as number)
+  }
+}
+
+function deepEqual(a: JSONValue, b: JSONValue): boolean {
+  if (a === b) return true
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
+function evaluateOpCode_logical(context: Context, opCode: OpLogical): Context {
+  return context.map((each) => {
+    const left = evaluateOpCodes([each], [...opCode.left])
+    const right = evaluateOpCodes([each], [...opCode.right])
+    if (opCode.op === 'and') return Boolean(left) && Boolean(right)
+    return Boolean(left) || Boolean(right)
+  })
+}
+
+function evaluateOpCode_select(context: Context, opCode: OpSelect): Context {
+  return context.filter((each) => {
+    try {
+      const result = evaluateOpCodes([each], [...opCode.condition])
+      return result !== null && result !== false && result !== undefined
+    } catch {
+      return false
+    }
+  })
 }
 
 function evaluateOpCode_create_array(context: Context, opCode: OpCreateArray): Context {
@@ -260,7 +374,10 @@ function evaluateOpCode_pipe(
   callback?: ExploderCallback
 ): Context {
   const exploder = makeExploder()
-  let result = evaluateOpCodes(context, [...opCode.in], makeExploderCb(exploder, callback))
+  // Use a non-propagating local callback so that nested pipe explosions (e.g. from
+  // to_entries inside a deeper pipe) don't prematurely signal the parent with a stale count.
+  // Instead, we signal the parent ourselves after all right-side filtering is done.
+  let result = evaluateOpCodes(context, [...opCode.in], makeExploderCb(exploder))
   if (!exploder.exploded) {
     result = evaluateOpCodes([result], [...opCode.out])
   } else {
@@ -278,10 +395,15 @@ function evaluateOpCode_pipe(
         explodedResult = result as JSONValue[]
         break
     }
-    result =
-      explodedResult == null
-        ? null
-        : explodedResult.map((each) => evaluateOpCodes([each], [...opCode.out]))
+    // Apply right side to each exploded value; select() returns undefined for filtered items
+    const pipeResults: JSONValue[] = []
+    for (const each of explodedResult ?? []) {
+      const r = evaluateOpCodes([each], [...opCode.out])
+      if (r !== undefined) pipeResults.push(r)
+    }
+    result = pipeResults
+    // Signal parent with the actual post-filter count
+    if (callback) callback(pipeResults.length)
   }
   return Array.isArray(result) ? result : [result]
 }

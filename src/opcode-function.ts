@@ -1,4 +1,4 @@
-import { Context, NoArgFunctioName, OpFunction, StringArgFunctionName } from './types'
+import { Context, JSONValue, NoArgFunctioName, OpFunction, StringArgFunctionName } from './types'
 
 export function evaluateOpCode_function(context: Context, { name, value }: OpFunction): Context {
   const result: Context = []
@@ -32,50 +32,76 @@ export function evaluateOpCode_function(context: Context, { name, value }: OpFun
   return result
 }
 
-const noArgCallbacks = {
-  ltrim(each: Context[number]): string {
+const noArgCallbacks: Record<NoArgFunctioName, (each: JSONValue) => JSONValue> = {
+  ltrim(each) {
     if (typeof each !== 'string') throw new Error(`Cannot ltrim ${typeof each}`)
     return each.trimStart()
   },
-  rtrim(each: Context[number]): string {
+  rtrim(each) {
     if (typeof each !== 'string') throw new Error(`Cannot rtrim ${typeof each}`)
     return each.trimEnd()
   },
-  trim(each: Context[number]): string {
+  trim(each) {
     if (typeof each !== 'string') throw new Error(`Cannot trim ${typeof each}`)
     return each.trim()
   },
-} as const
+  not(each) {
+    return !each
+  },
+  keys(each) {
+    if (Array.isArray(each)) return each.map((_, i) => i)
+    if (typeof each === 'object' && each !== null)
+      return Object.keys(each as Record<string, JSONValue>).sort()
+    throw new Error(`Cannot get keys of ${typeof each}`)
+  },
+  from_entries(each) {
+    if (!Array.isArray(each)) throw new Error('from_entries input must be an array')
+    const result: Record<string, JSONValue> = {}
+    for (const entry of each) {
+      if (typeof entry !== 'object' || Array.isArray(entry) || entry === null) {
+        throw new Error('from_entries entry must be an object')
+      }
+      const e = entry as Record<string, JSONValue>
+      const k = e.key ?? e.Key ?? e.name ?? e.Name
+      if (k === undefined || k === null) throw new Error('from_entries entry must have key or name')
+      const v = 'value' in e ? e.value : e.Value
+      result[String(k)] = v as JSONValue
+    }
+    return result
+  },
+}
 
-const stringArgCallbacks = {
-  startswith<Value extends string>(
-    each: Context[number],
-    value: Value
-  ): each is `${Value}${string}` {
+const stringArgCallbacks: Record<
+  StringArgFunctionName,
+  (each: JSONValue, value: string) => JSONValue
+> = {
+  startswith(each, value) {
     if (typeof each !== 'string') throw new Error(`Cannot startswith ${typeof each}`)
     return each.startsWith(value)
   },
 
-  endswith<Value extends string>(each: Context[number], value: Value): each is `${string}${Value}` {
+  endswith(each, value) {
     if (typeof each !== 'string') throw new Error(`Cannot endswith ${typeof each}`)
     return each.endsWith(value)
   },
 
-  ltrimstr(each: Context[number], value: string): string {
-    return stringArgCallbacks.startswith(each, value) ? each.slice(value.length) : value
+  ltrimstr(each, value) {
+    if (typeof each !== 'string') throw new Error(`Cannot ltrimstr ${typeof each}`)
+    return each.startsWith(value) ? each.slice(value.length) : each
   },
 
-  rtrimstr(each: Context[number], value: string): string {
-    return stringArgCallbacks.endswith(each, value) ? each.slice(0, 0 - value.length) : value
+  rtrimstr(each, value) {
+    if (typeof each !== 'string') throw new Error(`Cannot rtrimstr ${typeof each}`)
+    return each.endsWith(value) ? each.slice(0, -value.length) : each
   },
 
-  split(each: Context[number], value: string): string[] {
+  split(each, value) {
     if (typeof each !== 'string') throw new Error(`Cannot split ${typeof each}`)
     return each.split(value)
   },
 
-  join(each: Context[number], value: string): string {
+  join(each, value) {
     if (!Array.isArray(each)) throw new Error(`Cannot join ${typeof each}`)
     return each.join(value)
   },
-} as const
+}
