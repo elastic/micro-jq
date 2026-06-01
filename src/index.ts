@@ -4,7 +4,7 @@ export function checkScript(script: string): boolean {
   try {
     parse(script)
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 }

@@ -21,7 +21,7 @@ import {
 } from './types'
 
 export default function executeScript(input: JSONValue, script: string) {
-  const opCodes = parse(script)
+  const opCodes = parse(script) as OpCode[]
 
   return evaluateOpCodes([input], opCodes)
 }
@@ -314,33 +314,36 @@ function evaluateOpCode_create_object(
   opCode: OpCreateObject,
   callback?: ExploderCallback
 ): Context {
-  const jsonObject = opCode.entries.reduce((result, each) => {
-    const exploder = makeExploder()
-    const values: JSONValue = evaluateOpCodes(
-      context,
-      [...each.value],
-      makeExploderCb(exploder, callback)
-    )
+  const jsonObject = opCode.entries.reduce(
+    (result, each) => {
+      const exploder = makeExploder()
+      const values: JSONValue = evaluateOpCodes(
+        context,
+        [...each.value],
+        makeExploderCb(exploder, callback)
+      )
 
-    if (!exploder.exploded) {
-      result[each.key] = [values]
-    } else {
-      switch (exploder.length) {
-        case 0:
-          result[each.key] = []
-          break
+      if (!exploder.exploded) {
+        result[each.key] = [values]
+      } else {
+        switch (exploder.length) {
+          case 0:
+            result[each.key] = []
+            break
 
-        case 1:
-          result[each.key] = [values]
-          break
+          case 1:
+            result[each.key] = [values]
+            break
 
-        default:
-          result[each.key] = values as Context
-          break
+          default:
+            result[each.key] = values as Context
+            break
+        }
       }
-    }
-    return result
-  }, {} as { [key: string]: Context })
+      return result
+    },
+    {} as { [key: string]: Context }
+  )
 
   const ops: [string, Context][] = Object.entries(jsonObject)
 
