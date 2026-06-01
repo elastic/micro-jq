@@ -1,3 +1,15 @@
+## [`1.9.0`](https://github.com/elastic/micro-jq/tree/v1.9.0)
+
+Add support for the following:
+
+- `select(expr)`: filter pipeline values by a condition
+- Comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- `and` / `or`: compound conditions in select
+- `not`: negate a boolean
+- `to_entries`: explode an object into `{key, value}` pairs (streaming, pipeable)
+- `keys`: sorted array of object keys
+- `from_entries`: inverse of `to_entries`
+
 ## [`1.8.0`](https://github.com/elastic/micro-jq/tree/v1.8.0)
 
 Adds support for calling zero argument and single argument functions, along
