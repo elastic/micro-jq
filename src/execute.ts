@@ -225,7 +225,9 @@ function evaluateOpCode_to_entries(context: Context, callback?: ExploderCallback
       throw new Error(`Cannot get entries of ${typeof each}`)
     }
   }
-  if (callback) callback(result.length)
+  if (callback) {
+    callback(result.length)
+  }
   return result
 }
 
@@ -255,7 +257,9 @@ function compareValues(left: JSONValue, right: JSONValue, operator: ComparisonOp
 }
 
 function deepEqual(a: JSONValue, b: JSONValue): boolean {
-  if (a === b) return true
+  if (a === b) {
+    return true
+  }
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
@@ -263,7 +267,9 @@ function evaluateOpCode_logical(context: Context, opCode: OpLogical): Context {
   return context.map((each) => {
     const left = evaluateOpCodes([each], [...opCode.left])
     const right = evaluateOpCodes([each], [...opCode.right])
-    if (opCode.op === 'and') return Boolean(left) && Boolean(right)
+    if (opCode.op === 'and') {
+      return Boolean(left) && Boolean(right)
+    }
     return Boolean(left) || Boolean(right)
   })
 }
@@ -402,11 +408,15 @@ function evaluateOpCode_pipe(
     const pipeResults: JSONValue[] = []
     for (const each of explodedResult ?? []) {
       const r = evaluateOpCodes([each], [...opCode.out])
-      if (r !== undefined) pipeResults.push(r)
+      if (r !== undefined) {
+        pipeResults.push(r)
+      }
     }
     result = pipeResults
     // Signal parent with the actual post-filter count
-    if (callback) callback(pipeResults.length)
+    if (callback) {
+      callback(pipeResults.length)
+    }
   }
   return Array.isArray(result) ? result : [result]
 }
