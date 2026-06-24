@@ -1,3 +1,9 @@
+## [`1.9.1`](https://github.com/elastic/micro-jq/tree/v1.9.1)
+
+* Update dependencies
+* Improve formatting
+* Migrate from yarn to npm
+
 ## [`1.9.0`](https://github.com/elastic/micro-jq/tree/v1.9.0)
 
 Add support for the following:
