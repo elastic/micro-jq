@@ -571,6 +571,13 @@ describe('length', () => {
     expect(executeScript('hello', 'length')).toEqual(5)
   })
 
+  test('counts multibyte characters as one', () => {
+    expect(executeScript('🐴', 'length')).toEqual(1)
+    expect(executeScript('👨‍👩‍👧‍👦', 'length')).toEqual(1)
+    expect(executeScript('🐴🐴🐴', 'length')).toEqual(3)
+    expect(executeScript('hello 🌍', 'length')).toEqual(7)
+  })
+
   test('returns array length', () => {
     expect(executeScript([1, 2, 3], 'length')).toEqual(3)
   })

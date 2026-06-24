@@ -1,3 +1,5 @@
+import stringLength from 'string-length'
+
 import { Context, JSONValue, NoArgFunctioName, OpFunction, StringArgFunctionName } from './types'
 
 export function evaluateOpCode_function(context: Context, { name, value }: OpFunction): Context {
@@ -68,7 +70,7 @@ const noArgCallbacks: Record<NoArgFunctioName, (each: JSONValue) => JSONValue> =
       return 0
     }
     if (typeof each === 'string') {
-      return each.length
+      return stringLength(each)
     }
     if (typeof each === 'number') {
       return Math.abs(each)
