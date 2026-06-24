@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { readFileSync } from 'fs'
 import executeScript from './execute'
 

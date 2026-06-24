@@ -104,8 +104,9 @@ export interface OpFunction {
   value?: string
 }
 
-export interface OpStringArgFunction<Name extends StringArgFunctionName = StringArgFunctionName>
-  extends OpFunction {
+export interface OpStringArgFunction<
+  Name extends StringArgFunctionName = StringArgFunctionName,
+> extends OpFunction {
   name: Name
   value: string
 }

@@ -547,9 +547,10 @@ describe('select', () => {
       { type: 'keyword', active: false },
       { type: 'text', active: true },
     ]
-    expect(
-      executeScript(input, '.[] | select(.type == "keyword" and .active == true)')
-    ).toEqual({ type: 'keyword', active: true })
+    expect(executeScript(input, '.[] | select(.type == "keyword" and .active == true)')).toEqual({
+      type: 'keyword',
+      active: true,
+    })
   })
 
   test('with or condition', () => {
@@ -640,9 +641,15 @@ describe('to_entries', () => {
 
 describe('from_entries', () => {
   test('converts key/value pairs back to object', () => {
-    expect(executeScript([{ key: 'a', value: 1 }, { key: 'b', value: 2 }], 'from_entries')).toEqual(
-      { a: 1, b: 2 }
-    )
+    expect(
+      executeScript(
+        [
+          { key: 'a', value: 1 },
+          { key: 'b', value: 2 },
+        ],
+        'from_entries'
+      )
+    ).toEqual({ a: 1, b: 2 })
   })
 
   test('accepts name instead of key', () => {
