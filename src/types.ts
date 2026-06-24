@@ -3,7 +3,7 @@ export type JSONValue =
   | number
   | boolean
   | null
-  | undefined // not a JSON type, but included for interoperability with defined types that allow undefined
+  | undefined // not a JSON type; used internally to signal an empty context — user-facing undefined is coerced to null
   | JSONValue[]
   | { [key: string]: JSONValue }
 

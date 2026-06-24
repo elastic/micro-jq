@@ -733,3 +733,21 @@ describe('recursive descent (..)', () => {
     expect(result.filter((v) => v !== null)).toEqual(['date', 'keyword'])
   })
 })
+
+describe('undefined coercion', () => {
+  test('undefined array element is treated as null', () => {
+    expect(executeScript([1, undefined, 3] as never, '.[1]')).toEqual(null)
+  })
+
+  test('undefined object value is treated as null', () => {
+    expect(executeScript({ a: undefined } as never, '.a')).toEqual(null)
+  })
+
+  test('undefined keyword produces null', () => {
+    expect(executeScript(null, 'undefined')).toEqual(null)
+  })
+
+  test('exploding an array with undefined elements yields nulls', () => {
+    expect(executeScript([1, undefined, 3] as never, '.[]')).toEqual([1, null, 3])
+  })
+})

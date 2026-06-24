@@ -43,7 +43,7 @@ function evaluateOpCodes(
         break
 
       case 'literal':
-        context = [opCode.value]
+        context = [nullify(opCode.value)]
         break
 
       case 'pick':
@@ -139,7 +139,7 @@ function evaluateOpCode_index(context: Context, opCode: OpIndex): Context {
     } else {
       indexed = each[opCode.index]
     }
-    result.push(indexed)
+    result.push(nullify(indexed))
     return result
   }, [])
 }
@@ -172,9 +172,9 @@ function evaluateOpCode_explode(
 ): Context {
   context = context.reduce<Context>((result, each) => {
     if (Array.isArray(each)) {
-      return result.concat(each)
+      return result.concat(each.map(nullify))
     } else if (typeof each === 'object' && each != null) {
-      return result.concat(Object.values(each))
+      return result.concat(Object.values(each).map(nullify))
     }
     if (opCode.strict) {
       // jq throws an error specifically for `null`, so let's
@@ -194,6 +194,7 @@ function evaluateOpCode_recursive_descent(context: Context, callback?: ExploderC
   const result: Context = []
 
   function walk(value: JSONValue) {
+    value = nullify(value)
     result.push(value)
     if (Array.isArray(value)) {
       value.forEach(walk)
@@ -215,11 +216,11 @@ function evaluateOpCode_to_entries(context: Context, callback?: ExploderCallback
   for (const each of context) {
     if (Array.isArray(each)) {
       for (let i = 0; i < (each as JSONValue[]).length; i++) {
-        result.push({ key: i as unknown as JSONValue, value: (each as JSONValue[])[i] })
+        result.push({ key: i as unknown as JSONValue, value: nullify((each as JSONValue[])[i]) })
       }
     } else if (typeof each === 'object' && each !== null) {
       for (const [k, v] of Object.entries(each as Record<string, JSONValue>)) {
-        result.push({ key: k as JSONValue, value: v })
+        result.push({ key: k as JSONValue, value: nullify(v) })
       }
     } else {
       throw new Error(`Cannot get entries of ${typeof each}`)
@@ -404,7 +405,8 @@ function evaluateOpCode_pipe(
         explodedResult = result as JSONValue[]
         break
     }
-    // Apply right side to each exploded value; select() returns undefined for filtered items
+    // Apply right side to each exploded value; evaluateOpCodes returns undefined for an empty
+    // context (e.g. select() filtered everything), which we use as a signal to drop the result
     const pipeResults: JSONValue[] = []
     for (const each of explodedResult ?? []) {
       const r = evaluateOpCodes([each], [...opCode.out])
@@ -419,6 +421,11 @@ function evaluateOpCode_pipe(
     }
   }
   return Array.isArray(result) ? result : [result]
+}
+
+// JSON has no undefined; coerce it to null at all points where user data enters the context
+function nullify(value: JSONValue): JSONValue {
+  return value === undefined ? null : value
 }
 
 function makeExploder(): Exploder {
