@@ -173,6 +173,7 @@ NoArgFunctions
 
 NoArgFunctionsNames
   = 'from_entries'
+  / 'length'
   / 'keys'
   / 'trim'
   / 'ltrim'
