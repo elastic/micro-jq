@@ -1,3 +1,10 @@
+## [`2.0.0`](https://github.com/elastic/micro-jq/tree/v2.0.0)
+
+* Breaking change: remove `parse` from the exported functions, as it
+  exposes too many internals.
+* Implement `length` function (#1)
+* Bundle with `tsup`
+
 ## [`1.9.1`](https://github.com/elastic/micro-jq/tree/v1.9.1)
 
 * Update dependencies
