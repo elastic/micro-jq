@@ -1,3 +1,5 @@
+import stringLength from 'string-length'
+
 import { Context, JSONValue, NoArgFunctioName, OpFunction, StringArgFunctionName } from './types'
 
 export function evaluateOpCode_function(context: Context, { name, value }: OpFunction): Context {
@@ -62,6 +64,24 @@ const noArgCallbacks: Record<NoArgFunctioName, (each: JSONValue) => JSONValue> =
       return Object.keys(each as Record<string, JSONValue>).sort()
     }
     throw new Error(`Cannot get keys of ${typeof each}`)
+  },
+  length(each) {
+    if (each === null) {
+      return 0
+    }
+    if (typeof each === 'string') {
+      return stringLength(each)
+    }
+    if (typeof each === 'number') {
+      return Math.abs(each)
+    }
+    if (Array.isArray(each)) {
+      return each.length
+    }
+    if (typeof each === 'object') {
+      return Object.keys(each as Record<string, JSONValue>).length
+    }
+    throw new Error(`Cannot get length of ${typeof each}`)
   },
   from_entries(each) {
     if (!Array.isArray(each)) {

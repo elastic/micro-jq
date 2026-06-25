@@ -1,4 +1,4 @@
-import { parse } from '../src'
+import { parse } from '../src/parser'
 
 test('current context', () => {
   expect(parse('.')).toMatchInlineSnapshot(`

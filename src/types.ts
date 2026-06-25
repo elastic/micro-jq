@@ -3,7 +3,7 @@ export type JSONValue =
   | number
   | boolean
   | null
-  | undefined // not a JSON type, but included for interoperability with defined types that allow undefined
+  | undefined // not a JSON type; used internally to signal an empty context — user-facing undefined is coerced to null
   | JSONValue[]
   | { [key: string]: JSONValue }
 
@@ -87,14 +87,21 @@ export interface OpToEntries {
 }
 
 export type StringArgFunctionName =
-  | 'startswith'
   | 'endswith'
+  | 'join'
   | 'ltrimstr'
   | 'rtrimstr'
   | 'split'
-  | 'join'
+  | 'startswith'
 
-export type NoArgFunctioName = 'trim' | 'ltrim' | 'rtrim' | 'keys' | 'from_entries' | 'not'
+export type NoArgFunctioName =
+  | 'from_entries'
+  | 'keys'
+  | 'length'
+  | 'ltrim'
+  | 'not'
+  | 'rtrim'
+  | 'trim'
 
 export type AnyArgFunctionName = StringArgFunctionName | NoArgFunctioName
 
@@ -113,20 +120,20 @@ export interface OpStringArgFunction<
 
 export type OpCode =
   | OpComparison
-  | OpLogical
-  | OpSelect
-  | OpRecursiveDescent
-  | OpToEntries
   | OpCreateArray
   | OpCreateObject
   | OpCurrentContext
   | OpExplode
+  | OpFunction
   | OpIndex
   | OpLiteral
+  | OpLogical
   | OpPick
   | OpPipe
+  | OpRecursiveDescent
+  | OpSelect
   | OpSlice
-  | OpFunction
+  | OpToEntries
 
 export interface Exploder {
   exploded: boolean

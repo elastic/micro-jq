@@ -2,7 +2,19 @@
   "name": "@elastic/micro-jq",
   "version": "1.9.1",
   "description": "Small implementation of jq",
-  "main": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist/cjs",
+    "dist/esm"
+  ],
   "license": "Apache-2.0",
   "packageManager": "npm@10.8.1",
   "engines": {
@@ -11,12 +23,13 @@
   "repository": {
     "url": "https://github.com/elastic/micro-jq"
   },
-  "bin": "./dist/cli.js",
-  "types": "./dist/index.d.ts",
+  "bin": "./dist/cjs/cli.js",
+  "types": "./dist/esm/index.d.ts",
   "scripts": {
-    "build": "peggy --plugin ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsc --declaration --outDir dist",
+    "build": "peggy --plugin ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsup",
     "lint": "eslint --cache src test",
     "lint-fix": "eslint --cache --fix src test",
+    "prepublishOnly": "npm run build",
     "test": "npm run lint && npm run build && npm exec -- jest"
   },
   "devDependencies": {
@@ -35,6 +48,8 @@
     "prettier": "^3.8.3",
     "ts-jest": "^29.4.11",
     "ts-pegjs": "^4.2.1",
+    "string-length": "^7.0.1",
+    "tsup": "^8.0.0",
     "typescript": "^6.0.3"
   },
   "jest": {
@@ -47,7 +62,19 @@
             "noImplicitAny": false
           }
         }
+      ],
+      "^.+\\.js$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "allowJs": true,
+            "module": "CommonJS"
+          }
+        }
       ]
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(string-length)/)"
+    ]
   }
 }

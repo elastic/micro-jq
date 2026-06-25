@@ -10,4 +10,3 @@ export function checkScript(script: string): boolean {
 }
 
 export { default as executeScript } from './execute'
-export { parse } from './parser'

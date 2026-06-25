@@ -566,6 +566,45 @@ describe('select', () => {
   })
 })
 
+describe('length', () => {
+  test('returns string length', () => {
+    expect(executeScript('hello', 'length')).toEqual(5)
+  })
+
+  test('counts multibyte characters as one', () => {
+    expect(executeScript('🐴', 'length')).toEqual(1)
+    expect(executeScript('👨‍👩‍👧‍👦', 'length')).toEqual(1)
+    expect(executeScript('🐴🐴🐴', 'length')).toEqual(3)
+    expect(executeScript('hello 🌍', 'length')).toEqual(7)
+  })
+
+  test('returns array length', () => {
+    expect(executeScript([1, 2, 3], 'length')).toEqual(3)
+  })
+
+  test('returns object key count', () => {
+    expect(executeScript({ a: 1, b: 2 }, 'length')).toEqual(2)
+  })
+
+  test('returns 0 for null', () => {
+    expect(executeScript(null, 'length')).toEqual(0)
+  })
+
+  test('returns absolute value for numbers', () => {
+    expect(executeScript(-5, 'length')).toEqual(5)
+    expect(executeScript(3, 'length')).toEqual(3)
+  })
+
+  test('works in a pipe', () => {
+    expect(executeScript({ a: 1, b: 2, c: 3 }, 'keys | length')).toEqual(3)
+  })
+
+  test('throws on boolean', () => {
+    expect(() => executeScript(true, 'length')).toThrow()
+    expect(() => executeScript(false, 'length')).toThrow()
+  })
+})
+
 describe('keys', () => {
   test('returns sorted object keys', () => {
     expect(executeScript({ b: 2, a: 1, c: 3 }, 'keys')).toEqual(['a', 'b', 'c'])
@@ -692,5 +731,23 @@ describe('recursive descent (..)', () => {
     const input = { a: { b: { type: 'date' } }, c: { type: 'keyword' } }
     const result = executeScript(input, '[.. | .type?]') as string[]
     expect(result.filter((v) => v !== null)).toEqual(['date', 'keyword'])
+  })
+})
+
+describe('undefined coercion', () => {
+  test('undefined array element is treated as null', () => {
+    expect(executeScript([1, undefined, 3] as never, '.[1]')).toEqual(null)
+  })
+
+  test('undefined object value is treated as null', () => {
+    expect(executeScript({ a: undefined } as never, '.a')).toEqual(null)
+  })
+
+  test('undefined keyword produces null', () => {
+    expect(executeScript(null, 'undefined')).toEqual(null)
+  })
+
+  test('exploding an array with undefined elements yields nulls', () => {
+    expect(executeScript([1, undefined, 3] as never, '.[]')).toEqual([1, null, 3])
   })
 })
