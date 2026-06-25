@@ -8,6 +8,7 @@ export default defineConfig([
     outExtension: () => ({ js: '.js' }),
     dts: true,
     clean: true,
+    // string-length is inlined so consumers don't need to install it as a runtime dep
     noExternal: ['string-length'],
   },
   {

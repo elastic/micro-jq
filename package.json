@@ -11,6 +11,10 @@
       "require": "./dist/cjs/index.js"
     }
   },
+  "files": [
+    "dist/cjs",
+    "dist/esm"
+  ],
   "license": "Apache-2.0",
   "packageManager": "npm@10.8.1",
   "engines": {
@@ -25,6 +29,7 @@
     "build": "peggy --plugin ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsup",
     "lint": "eslint --cache src test",
     "lint-fix": "eslint --cache --fix src test",
+    "prepublishOnly": "npm run build",
     "test": "npm run lint && npm run build && npm exec -- jest"
   },
   "devDependencies": {
@@ -43,6 +48,7 @@
     "prettier": "^3.8.3",
     "ts-jest": "^29.4.11",
     "ts-pegjs": "^4.2.1",
+    "string-length": "^7.0.1",
     "tsup": "^8.0.0",
     "typescript": "^6.0.3"
   },
@@ -70,8 +76,5 @@
     "transformIgnorePatterns": [
       "node_modules/(?!(string-length)/)"
     ]
-  },
-  "dependencies": {
-    "string-length": "^7.0.1"
   }
 }
