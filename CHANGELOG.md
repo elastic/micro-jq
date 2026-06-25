@@ -1,3 +1,7 @@
+## [`2.0.1`](https://github.com/elastic/micro-jq/tree/v2.0.1)
+
+* Update dependencies
+
 ## [`2.0.0`](https://github.com/elastic/micro-jq/tree/v2.0.0)
 
 * Breaking change: remove `parse` from the exported functions, as it
