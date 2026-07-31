@@ -1,13 +1,13 @@
 {
   "name": "@elastic/micro-jq",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Small implementation of jq",
   "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
+  "module": "./dist/esm/index.mjs",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.mts",
+      "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.js"
     }
   },
@@ -24,7 +24,7 @@
     "url": "https://github.com/elastic/micro-jq"
   },
   "bin": "./dist/cjs/cli.js",
-  "types": "./dist/esm/index.d.ts",
+  "types": "./dist/esm/index.d.mts",
   "scripts": {
     "build": "peggy --plugin ts-pegjs --cache -o ./src/parser.ts ./src/parser.pegjs && tsup",
     "lint": "eslint --cache src test",

@@ -1,3 +1,7 @@
+## [`2.0.2`](https://github.com/elastic/micro-jq/tree/v2.0.2)
+
+* Fix package metadata for ESM imports and TypeScript declarations
+
 ## [`2.0.1`](https://github.com/elastic/micro-jq/tree/v2.0.1)
 
 * Update dependencies
