@@ -5,6 +5,14 @@
     return parseInt(stringArray.join(''), 10) * ( negative ? -1 : 1 )
   }
 
+  function ops(value) {
+    return Array.isArray(value) ? value : [value]
+  }
+
+  function pipeline(head, tail) {
+    return tail.reduce((input, next) => [{ op: 'pipe', in: input, out: ops(next[3]) }], ops(head))
+  }
+
   function literal(value) {
     return {
       op: 'literal',
@@ -14,18 +22,20 @@
 }
 
 Script
-  = Expression
+  = StreamExpression
 
-Expression
-  = head:OrExpr tail:(_ Pipe* _ OrExpr)* {
-    return tail.reduce(function(result, element) {
-      return [{
-        op:  'pipe',
-        in:  result,
-        out: Array.isArray(element[3]) ? element[3] : [element[3]],
-      }]
-    }, Array.isArray(head) ? head : [head])
+StreamExpression
+  = head:CommaExpr tail:(_ Pipe* _ CommaExpr)* { return pipeline(head, tail) }
+
+CommaExpr
+  = head:OrExpr tail:(_ "," _ OrExpr)* {
+    if (!tail.length) return head
+    return { op: 'comma', values: [ops(head), ...tail.map(next => ops(next[3]))] }
   }
+
+// Commas between object fields delimit entries.
+Expression
+  = head:OrExpr tail:(_ Pipe* _ OrExpr)* { return pipeline(head, tail) }
 
 OrExpr
   = head:AndExpr tail:(_ 'or' !IdentifierPart _ AndExpr)* {
@@ -101,7 +111,7 @@ Functions
   / NoArgFunctions
 
 SelectFunction
-  = 'select' _ '(' _ expr:Expression _ ')' {
+  = 'select' _ '(' _ expr:StreamExpression _ ')' {
     return {
       op: 'select',
       condition: Array.isArray(expr) ? expr : [expr],
@@ -216,19 +226,19 @@ Number
 
 String
   = "'" string:[^']* "'" { return string.join('') }
-  / '"' string:[^"]* '"' { return string.join('') }
+  / DoubleQuotedString
+
+DoubleQuotedString
+  = value:$('"' ( '\\' . / [^"\\] )* '"') { return JSON.parse(value) }
 
 Boolean
   = 'true' { return true }
   / 'false' { return false }
 
 CreateArray
-  = "[" _ head:Expression tail:(_ "," _ Expression)* _ "]" {
-  return {
-    op: 'create_array',
-    values: tail.reduce((result, element) => result.concat([element[3]]), [head])
+  = "[" _ expr:StreamExpression _ "]" {
+    return { op: 'create_array', values: expr.length === 1 && expr[0].op === 'comma' ? expr[0].values : [expr] }
   }
-}
 
 CreateObject
   = "{" _ head:KeyValue tail:(_ "," _ KeyValue)* _ "}" {
@@ -249,7 +259,7 @@ KeyValue
 Key
   = key:Identifier { return key }
   / "'" key:[^']+ "'" { return key.join('') }
-  / '"' key:[^"]+ '"' { return key.join('') }
+  / DoubleQuotedString
 
 // The patterns from here are largely pinched from the PegJS JavaScript
 // parser example:

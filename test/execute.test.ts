@@ -751,3 +751,36 @@ describe('undefined coercion', () => {
     expect(executeScript([1, undefined, 3] as never, '.[]')).toEqual([1, null, 3])
   })
 })
+
+describe('jq expression conformance', () => {
+  test('compares each generated pair, in jq order', () => {
+    expect(executeScript([1, 1, '1', 'banana'], '.[] == 1')).toEqual([true, true, false, false])
+    expect(executeScript([1, 2], '[.[] < .[]]')).toEqual([false, false, true, false])
+    expect(executeScript([], '[.[] == 1]')).toEqual([])
+    expect(executeScript([[1], [2]], '[.[] == [1]]')).toEqual([true, false])
+  })
+
+  test('pipes the entire comma expression', () => {
+    expect(executeScript(null, '[true, false | not]')).toEqual([false, true])
+    expect(executeScript(null, '[true, false | not, .]')).toEqual([false, true, true, false])
+  })
+
+  test('preserves stream and array boundaries in nested filters', () => {
+    expect(executeScript([0, false], '[.[] and true]')).toEqual([true, false])
+    expect(executeScript([1, 2], '[{match: .[] == 2}]')).toEqual([
+      { match: false },
+      { match: true },
+    ])
+    expect(executeScript([1, 2], '[.[] | [., .]]')).toEqual([
+      [1, 1],
+      [2, 2],
+    ])
+  })
+
+  test('decodes JSON escapes in double-quoted strings and keys', () => {
+    const value = 'Aa\r\n\t\b\fμ"\\'
+    expect(executeScript(null, JSON.stringify(value))).toBe(value)
+    expect(executeScript(null, '{"\\u03bc": "\\u03bc"}')).toEqual({ μ: 'μ' })
+    expect(executeScript({ μ: 1 }, '.["\\u03bc"]')).toBe(1)
+  })
+})
