@@ -119,6 +119,7 @@ export interface OpStringArgFunction<
 }
 
 export type OpCode =
+  | { op: 'comma'; values: OpCode[][] }
   | OpComparison
   | OpCreateArray
   | OpCreateObject
@@ -134,10 +135,3 @@ export type OpCode =
   | OpSelect
   | OpSlice
   | OpToEntries
-
-export interface Exploder {
-  exploded: boolean
-  length: number
-}
-
-export type ExploderCallback = (length: number) => void
